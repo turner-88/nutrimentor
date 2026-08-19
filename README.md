@@ -27,13 +27,13 @@ Five daily self-management pillars + peer support:
 
 ## Backend — run locally
 
-Requires Go 1.25+, a MariaDB/MySQL server, `sqlc`, `golang-migrate`, and Node 18+/npm
-(for the admin CSS build).
+Requires Go 1.25+, a MariaDB/MySQL server, `sqlc`, and `golang-migrate`. The admin CSS
+build uses the standalone Tailwind CLI, which `make css` downloads automatically — no
+Node.js required.
 
 ```bash
 cp .env.example .env          # then edit DB_* and JWT_SECRET
-npm install                   # one-time: install the Tailwind CLI
-make css                      # build static/css/admin.css from admin.src.css
+make css                      # download the Tailwind CLI + build static/css/admin.css from admin.src.css
 make sqlc                     # regenerate internal/database/sqlc (only after query/schema changes)
 make migrate-up               # apply migrations
 go run cmd/genhash/main.go <password>   # make a bcrypt hash for the admin seed
@@ -75,7 +75,7 @@ targeting `https://sebayadm.remorac.com`. Everything lives in `deploy/`:
 
 | File | Purpose |
 |---|---|
-| `deploy/setup.sh` | One-time provisioning (Debian/Ubuntu): installs Go/Node/nginx/certbot/migrate, creates the `sebaya` user + `/opt/sebaya/app` checkout, the MariaDB DB/user, `.env`, the systemd unit, the nginx site, and the TLS cert, then runs the first deploy. |
+| `deploy/setup.sh` | One-time provisioning (Debian/Ubuntu): installs Go/nginx/certbot/migrate, creates the `sebaya` user + `/opt/sebaya/app` checkout, the MariaDB DB/user, `.env`, the systemd unit, the nginx site, and the TLS cert, then runs the first deploy. |
 | `deploy/deploy.sh` | Repeatable deploy: `git pull` → `make css` + `make build` → `make migrate-up` → restart service → health-check. |
 | `deploy/sebaya.service` | systemd unit (`WorkingDirectory=/opt/sebaya/app`, `EnvironmentFile=.env`). |
 | `deploy/nginx/sebayadm.remorac.com.conf` | nginx reverse proxy → `127.0.0.1:8081`. |

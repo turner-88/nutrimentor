@@ -19,7 +19,6 @@ APP_USER="${APP_USER:-sebaya}"
 APP_DIR="${APP_DIR:-/opt/sebaya/app}"
 REPO_URL="${REPO_URL:-https://github.com/remorac/sebaya-app.git}"
 GO_VERSION="${GO_VERSION:-1.25.1}"
-NODE_MAJOR="${NODE_MAJOR:-20}"
 DB_NAME="${DB_NAME:-sebaya}"
 DB_USER="${DB_USER:-sebaya}"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"   # optional; used for cert expiry notices
@@ -51,14 +50,6 @@ if ! command -v go >/dev/null 2>&1 || [ "$(go version 2>/dev/null | awk '{print 
     ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
 fi
 go version
-
-# ------------------------------------------------------------------ Node ------
-if ! command -v node >/dev/null 2>&1; then
-    echo "==> Installing Node ${NODE_MAJOR}.x"
-    curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash -
-    apt-get install -y nodejs
-fi
-node --version
 
 # --------------------------------------------------------------- migrate ------
 if ! command -v migrate >/dev/null 2>&1; then

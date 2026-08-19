@@ -5,7 +5,6 @@
 .env
 .DS_Store
 static/uploads/
-/node_modules/
 
 # Firebase credentials — never commit
 /secrets/

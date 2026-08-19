@@ -21,15 +21,8 @@ cd "$APP_DIR"
 echo "==> Pulling latest source"
 git pull --ff-only
 
-echo "==> Installing Node deps (Tailwind CLI)"
-if [ -f package-lock.json ]; then
-    npm ci
-else
-    npm install
-fi
-
 echo "==> Building CSS + Go binary"
-make build   # runs `make css` then `go build -ldflags "-s -w" -o bin/server`
+make build   # downloads the standalone Tailwind CLI, runs `make css`, then `go build -ldflags "-s -w" -o bin/server`
 
 echo "==> Applying database migrations"
 make migrate-up
