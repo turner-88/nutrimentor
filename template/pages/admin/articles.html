@@ -1,0 +1,30 @@
+{{define "content"}}
+<div class="flex justify-end mb-4">
+  <a href="/admin/articles/new" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Artikel Baru</a>
+</div>
+<div class="card bg-base-100 shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead><tr><th>Judul</th><th>Kategori</th><th>Status</th><th>Urutan</th><th></th></tr></thead>
+      <tbody>
+        {{range .Articles}}
+        <tr>
+          <td class="font-medium">{{.Title}}</td>
+          <td class="opacity-70">{{if .Category}}{{.Category}}{{else}}—{{end}}</td>
+          <td>{{if .IsPublished}}<span class="badge badge-success badge-sm">Terbit</span>{{else}}<span class="badge badge-ghost badge-sm">Draf</span>{{end}}</td>
+          <td>{{.SortOrder}}</td>
+          <td class="text-right whitespace-nowrap">
+            <a href="/admin/articles/{{.ID}}/edit" class="btn btn-xs btn-ghost">Ubah</a>
+            <form method="post" action="/admin/articles/{{.ID}}/delete" class="inline" onsubmit="return confirm('Hapus artikel ini?')">
+              <button class="btn btn-xs btn-ghost text-error">Hapus</button>
+            </form>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5" class="text-center opacity-50 py-8">Belum ada artikel.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

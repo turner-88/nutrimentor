@@ -1,0 +1,38 @@
+{{define "content"}}
+<div class="grid gap-4 lg:grid-cols-3">
+  <div class="lg:col-span-2 card bg-base-100 shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Nama</th><th>Deskripsi</th><th>Anggota</th><th></th></tr></thead>
+        <tbody>
+          {{range .Rows}}
+          <tr>
+            <td class="font-medium">{{.G.Name}}</td>
+            <td class="opacity-70 text-sm">{{.G.Description}}</td>
+            <td>{{.Members}}</td>
+            <td class="text-right">
+              <form method="post" action="/admin/groups/{{.G.ID}}/delete" onsubmit="return confirm('Hapus kelompok ini?')">
+                <button class="btn btn-xs btn-ghost text-error">Hapus</button>
+              </form>
+            </td>
+          </tr>
+          {{else}}
+          <tr><td colspan="4" class="text-center opacity-50 py-8">Belum ada kelompok.</td></tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h3 class="font-semibold">Tambah Kelompok</h3>
+      <form method="post" action="/admin/groups" class="space-y-2 mt-1">
+        <input type="text" name="name" placeholder="Nama kelompok" class="input input-bordered input-sm w-full" required>
+        <textarea name="description" placeholder="Deskripsi (opsional)" class="textarea textarea-bordered textarea-sm w-full"></textarea>
+        <button class="btn btn-primary btn-sm w-full">Simpan</button>
+      </form>
+    </div>
+  </div>
+</div>
+{{end}}

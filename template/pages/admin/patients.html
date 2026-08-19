@@ -1,0 +1,40 @@
+{{define "content"}}
+<form method="get" class="flex gap-2 mb-4">
+  <input type="text" name="q" value="{{.Search}}" placeholder="Cari nama atau username…" class="input input-bordered input-sm w-full max-w-xs">
+  <button class="btn btn-sm btn-primary">Cari</button>
+</form>
+
+<div class="card bg-base-100 shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr><th>Nama</th><th>Username</th><th>Usia</th><th>JK</th><th>Study Arm</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {{range .Patients}}
+        <tr>
+          <td class="font-medium">{{.NamaLengkap}}</td>
+          <td class="opacity-70">{{.Username}}</td>
+          <td>{{.Usia}}</td>
+          <td>{{.JenisKelamin}}</td>
+          <td>{{if .StudyArm.Valid}}<span class="badge badge-outline">{{.StudyArm.UserStudyArm}}</span>{{else}}<span class="opacity-40">—</span>{{end}}</td>
+          <td>{{if .IsActive}}<span class="badge badge-success badge-sm">Aktif</span>{{else}}<span class="badge badge-ghost badge-sm">Nonaktif</span>{{end}}</td>
+          <td class="text-right"><a href="/admin/patients/{{.ID}}" class="btn btn-xs btn-ghost">Detail</a></td>
+        </tr>
+        {{else}}
+        <tr><td colspan="7" class="text-center opacity-50 py-8">Belum ada responden.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{{if gt .TotalPages 1}}
+<div class="join mt-4">
+  {{range seq .TotalPages}}
+  <a href="?q={{$.Search}}&page={{.}}" class="join-item btn btn-sm {{if eq . $.Page}}btn-active{{end}}">{{.}}</a>
+  {{end}}
+</div>
+{{end}}
+<p class="text-sm opacity-60 mt-2">Total: {{.Total}} responden</p>
+{{end}}

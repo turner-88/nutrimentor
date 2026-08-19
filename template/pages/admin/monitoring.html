@@ -1,0 +1,31 @@
+{{define "content"}}
+<div class="flex items-center justify-between mb-4">
+  <p class="text-sm opacity-60">Kepatuhan (semua pilar terpenuhi) dalam {{.WindowDays}} hari terakhir.</p>
+  <a href="/admin/monitoring/export.csv" class="btn btn-sm btn-outline"><i data-lucide="download"></i> Export CSV</a>
+</div>
+<div class="card bg-base-100 shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead><tr><th>Nama</th><th>Kelompok</th><th>Study Arm</th><th>Hari Patuh</th><th>Skor</th></tr></thead>
+      <tbody>
+        {{range .Rows}}
+        <tr>
+          <td class="font-medium">{{.User.NamaLengkap}}</td>
+          <td class="opacity-70">{{if .GroupName}}{{.GroupName}}{{else}}—{{end}}</td>
+          <td>{{if .User.StudyArm.Valid}}<span class="badge badge-outline badge-sm">{{.User.StudyArm.UserStudyArm}}</span>{{else}}—{{end}}</td>
+          <td>{{.CompliantDays}} / {{$.WindowDays}}</td>
+          <td>
+            <div class="flex items-center gap-2">
+              <progress class="progress progress-primary w-24" value="{{.ScorePercent}}" max="100"></progress>
+              <span class="text-sm">{{.ScorePercent}}%</span>
+            </div>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5" class="text-center opacity-50 py-8">Belum ada data.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

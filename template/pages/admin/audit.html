@@ -1,0 +1,29 @@
+{{define "content"}}
+<div class="card bg-base-100 shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="table table-sm">
+      <thead><tr><th>ID</th><th>Waktu</th><th>Tabel</th><th>Row</th><th>Aksi</th><th>Aktor</th><th>Perubahan</th></tr></thead>
+      <tbody>
+        {{range .Rows}}
+        <tr>
+          <td>{{.ID}}</td>
+          <td class="whitespace-nowrap">{{datetime .CreatedAt}}</td>
+          <td>{{.TableName}}</td>
+          <td>{{.RowID}}</td>
+          <td><span class="badge badge-ghost badge-sm">{{.Action}}</span></td>
+          <td>{{if .ActorID.Valid}}{{.ActorID.Int32}}{{else}}—{{end}}</td>
+          <td class="max-w-md truncate text-xs opacity-70">{{if .Changes.Valid}}{{.Changes.String}}{{end}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="7" class="text-center opacity-50 py-8">Belum ada catatan.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="join mt-4">
+  {{if gt .Page 1}}<a href="?page={{sub .Page 1}}" class="join-item btn btn-sm">« Sebelumnya</a>{{end}}
+  <span class="join-item btn btn-sm btn-active">Hal. {{.Page}}</span>
+  <a href="?page={{add .Page 1}}" class="join-item btn btn-sm">Berikutnya »</a>
+</div>
+{{end}}

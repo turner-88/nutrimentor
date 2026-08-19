@@ -1,0 +1,10 @@
+Backend API & Admin Panel
+- Golang Monolith
+- MariaDB
+- Admin Panel UI in /admin
+- API for User App (REST) in /api
+
+User App 
+- Android App (Kotlin)
+
+read _references directory to understand more.

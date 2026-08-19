@@ -1,0 +1,95 @@
+{{define "content"}}
+<a href="/admin/patients" class="btn btn-ghost btn-sm mb-4"><i data-lucide="arrow-left"></i> Kembali</a>
+
+<div class="grid gap-4 lg:grid-cols-3">
+  <!-- Profile + admin actions -->
+  <div class="space-y-4">
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title">{{.P.NamaLengkap}}</h2>
+        <div class="text-sm space-y-1 opacity-80">
+          <div>Username: <b>{{.P.Username}}</b></div>
+          <div>Usia: {{.P.Usia}} · JK: {{.P.JenisKelamin}}</div>
+          <div>Pendidikan: {{if .P.Pendidikan}}{{.P.Pendidikan}}{{else}}—{{end}}</div>
+          <div>Pekerjaan: {{if .P.Pekerjaan}}{{.P.Pekerjaan}}{{else}}—{{end}}</div>
+          <div>Status: {{if .P.IsActive}}<span class="badge badge-success badge-sm">Aktif</span>{{else}}<span class="badge badge-ghost badge-sm">Nonaktif</span>{{end}}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h3 class="font-semibold">Kelompok & Study Arm</h3>
+        <form method="post" action="/admin/patients/{{.P.ID}}/group" class="space-y-2 mt-1">
+          <select name="group_id" class="select select-bordered select-sm w-full">
+            <option value="0">— Tanpa kelompok —</option>
+            {{$pg := .P.GroupID}}
+            {{range .Groups}}<option value="{{.ID}}" {{if and $pg.Valid (eq $pg.Int32 .ID)}}selected{{end}}>{{.Name}}</option>{{end}}
+          </select>
+          <select name="study_arm" class="select select-bordered select-sm w-full">
+            <option value="">— Study arm —</option>
+            <option value="intervensi" {{if and .P.StudyArm.Valid (eq (printf "%s" .P.StudyArm.UserStudyArm) "intervensi")}}selected{{end}}>Intervensi</option>
+            <option value="kontrol" {{if and .P.StudyArm.Valid (eq (printf "%s" .P.StudyArm.UserStudyArm) "kontrol")}}selected{{end}}>Kontrol</option>
+          </select>
+          <button class="btn btn-primary btn-sm w-full">Simpan</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h3 class="font-semibold">Aksi</h3>
+        <form method="post" action="/admin/patients/{{.P.ID}}/password" class="flex gap-2 mt-1">
+          <input type="password" name="password" placeholder="Password baru" class="input input-bordered input-sm grow" required>
+          <button class="btn btn-sm">Reset</button>
+        </form>
+        <form method="post" action="/admin/patients/{{.P.ID}}/active" class="mt-2">
+          <input type="hidden" name="active" value="{{if .P.IsActive}}0{{else}}1{{end}}">
+          <button class="btn btn-sm btn-outline w-full">{{if .P.IsActive}}Nonaktifkan{{else}}Aktifkan{{end}} Akun</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="stats bg-base-100 shadow-sm w-full">
+      <div class="stat">
+        <div class="stat-title">Hari patuh (30 hari)</div>
+        <div class="stat-value text-primary">{{.CompliantDays}}</div>
+        <div class="stat-desc">Semua pilar terpenuhi</div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h3 class="font-semibold mb-2">Gula Darah (30 hari terakhir)</h3>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead><tr><th>Waktu</th><th>Timing</th><th>mg/dL</th></tr></thead>
+            <tbody>
+              {{range .Glucose}}<tr><td>{{datetime .MeasuredAt}}</td><td>{{.Timing}}</td><td class="font-medium">{{.ValueMgdl}}</td></tr>
+              {{else}}<tr><td colspan="3" class="text-center opacity-50 py-4">Belum ada data.</td></tr>{{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
+        <h4 class="font-semibold text-sm mb-1">Konsumsi Obat</h4>
+        <ul class="text-xs space-y-1">{{range .Medication}}<li>{{ymd .LogDate}} · {{if .TakenComplete}}✅{{else}}❌{{end}} lengkap · {{if .TakenOnTime}}✅{{else}}❌{{end}} tepat</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
+      </div></div>
+      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
+        <h4 class="font-semibold text-sm mb-1">Aktivitas Fisik</h4>
+        <ul class="text-xs space-y-1">{{range .Activity}}<li>{{ymd .LogDate}} · {{if .DidActivity}}✅{{else}}❌{{end}} · {{if .PerDoctorAdvice}}sesuai{{else}}tidak{{end}}</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
+      </div></div>
+      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
+        <h4 class="font-semibold text-sm mb-1">Diet</h4>
+        <ul class="text-xs space-y-1">{{range .Diet}}<li>{{ymd .LogDate}} · {{if .PerDoctorAdvice}}sesuai{{else}}tidak{{end}} · {{if .OnSchedule}}jadwal{{else}}tdk jadwal{{end}}</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
+      </div></div>
+    </div>
+  </div>
+</div>
+{{end}}

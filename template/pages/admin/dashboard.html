@@ -1,0 +1,49 @@
+{{define "content"}}
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-primary/10 text-primary grid place-items-center"><i data-lucide="users"></i></div>
+        <div>
+          <div class="text-3xl font-bold">{{.PatientCount}}</div>
+          <div class="text-sm opacity-60">Responden</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-secondary/10 text-secondary grid place-items-center"><i data-lucide="users-round"></i></div>
+        <div>
+          <div class="text-3xl font-bold">{{.GroupCount}}</div>
+          <div class="text-sm opacity-60">Kelompok Sebaya</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-accent/10 text-accent grid place-items-center"><i data-lucide="calendar-check"></i></div>
+        <div>
+          <div class="text-3xl font-bold">{{.ActiveToday}}</div>
+          <div class="text-sm opacity-60">Aktif hari ini</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm mt-6">
+  <div class="card-body">
+    <h2 class="card-title text-lg">Pintasan</h2>
+    <div class="flex flex-wrap gap-2 mt-2">
+      <a href="/admin/patients" class="btn btn-sm btn-outline"><i data-lucide="users"></i> Kelola Responden</a>
+      <a href="/admin/groups" class="btn btn-sm btn-outline"><i data-lucide="users-round"></i> Kelola Kelompok</a>
+      <a href="/admin/articles" class="btn btn-sm btn-outline"><i data-lucide="book-open"></i> Kelola Edukasi</a>
+      <a href="/admin/monitoring" class="btn btn-sm btn-outline"><i data-lucide="line-chart"></i> Monitoring</a>
+    </div>
+  </div>
+</div>
+{{end}}

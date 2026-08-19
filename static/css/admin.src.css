@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/* Scan the server-rendered templates for the utility classes actually used. */
+@source "../../template";
+
+/* ------------------------------------------------------------------ */
+/* Theme — emerald palette + Sora / Plus Jakarta Sans typography.       */
+/* Defining the color tokens here regenerates the semantic utilities    */
+/* (bg-primary, text-primary-content, border-base-300, bg-primary/10…)  */
+/* so the templates keep working without touching their class names.    */
+/* ------------------------------------------------------------------ */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: "Sora", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-primary: #059669;
+  --color-primary-content: #ffffff;
+  --color-secondary: #0d9488;
+  --color-secondary-content: #ffffff;
+  --color-accent: #d97706;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1f2937;
+  --color-neutral-content: #ffffff;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f5f7f6;
+  --color-base-300: #e2e8e5;
+  --color-base-content: #1f2933;
+
+  --color-info: #0284c7;
+  --color-info-content: #ffffff;
+  --color-success: #16a34a;
+  --color-success-content: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-content: #ffffff;
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                 */
+/* ------------------------------------------------------------------ */
+@layer base {
+  body {
+    @apply font-sans text-base-content;
+  }
+  h1, h2, h3, h4, .card-title {
+    @apply font-heading;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Components — in-house replacements for the daisyUI classes the       */
+/* admin templates use. Class names are preserved intentionally.        */
+/* ------------------------------------------------------------------ */
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 select-none cursor-pointer
+           h-10 px-4 rounded-lg border border-transparent
+           bg-base-200 text-base-content text-sm font-medium
+           transition-colors hover:bg-base-300;
+  }
+  .btn svg { @apply w-[1.15em] h-[1.15em]; }
+  .btn-primary { @apply bg-primary text-primary-content border-transparent hover:bg-primary hover:opacity-90; }
+  .btn-outline { @apply bg-transparent border-base-300 text-base-content hover:bg-base-200; }
+  .btn-ghost   { @apply bg-transparent border-transparent hover:bg-base-200; }
+  .btn-active  { @apply bg-base-300; }
+  .btn-square  { @apply w-10 px-0 aspect-square; }
+  .btn-sm      { @apply h-8 px-3 text-xs; }
+  .btn-xs      { @apply h-6 px-2 text-xs; }
+  .btn-sm.btn-square { @apply w-8; }
+
+  /* Cards */
+  .card       { @apply rounded-xl border border-base-300 bg-base-100; }
+  .card-body  { @apply p-5 flex flex-col gap-2; }
+  .card-title { @apply font-semibold; }
+
+  /* Text inputs — works both as a bare <input class="input"> and as a
+     <label class="input"> flex wrapper containing a stripped inner input. */
+  .input {
+    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
+           px-3 text-sm outline-none transition-colors;
+  }
+  label.input { @apply inline-flex items-center gap-2; }
+  .input:focus, .input:focus-within { @apply border-primary; }
+  .input :where(input, select, textarea) {
+    @apply h-full w-full grow border-0 bg-transparent p-0 outline-none;
+  }
+  .input-bordered { @apply border border-base-300; }
+  .input-sm { @apply h-8 px-2 text-xs; }
+
+  /* Select */
+  .select {
+    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
+           px-3 text-sm outline-none transition-colors;
+  }
+  .select:focus { @apply border-primary; }
+  .select-bordered { @apply border border-base-300; }
+  .select-sm { @apply h-8 px-2 text-xs; }
+
+  /* Textarea */
+  .textarea {
+    @apply w-full rounded-lg border border-base-300 bg-base-100
+           p-3 text-sm outline-none transition-colors;
+  }
+  .textarea:focus { @apply border-primary; }
+  .textarea-bordered { @apply border border-base-300; }
+  .textarea-sm { @apply p-2 text-xs; }
+
+  /* Checkbox */
+  .checkbox {
+    @apply h-5 w-5 rounded border border-base-300 align-middle;
+    accent-color: var(--color-primary);
+  }
+  .checkbox-primary { accent-color: var(--color-primary); }
+
+  /* Tables */
+  .table { @apply w-full text-left text-sm border-collapse; }
+  .table th {
+    @apply px-3 py-2 text-xs font-semibold border-b border-base-300;
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  }
+  .table td { @apply px-3 py-2 border-b border-base-300 align-middle; }
+  .table-sm th, .table-sm td { @apply px-2 py-1; }
+
+  /* Sidebar menu */
+  .menu { @apply flex flex-col; }
+  .menu li > a {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm
+           transition-colors hover:bg-base-200;
+  }
+  .menu li > a svg { @apply w-[1.15em] h-[1.15em]; }
+  .menu li > a.menu-active,
+  .menu-active { @apply bg-primary text-primary-content hover:bg-primary; }
+
+  /* Navbar */
+  .navbar { @apply flex items-center min-h-14 px-4; }
+
+  /* Drawer — responsive sidebar. Mobile: off-canvas overlay toggled by the
+     checkbox via a <label>. Desktop (lg): sidebar pinned, content offset. */
+  .drawer { @apply relative; }
+  .drawer-toggle { @apply sr-only; }
+  .drawer-side {
+    @apply fixed inset-0 z-40 invisible;
+  }
+  .drawer-side > aside {
+    @apply h-full -translate-x-full transition-transform duration-200;
+  }
+  .drawer-overlay {
+    @apply absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200;
+  }
+  .drawer-toggle:checked ~ .drawer-side { @apply visible; }
+  .drawer-toggle:checked ~ .drawer-side > aside { @apply translate-x-0; }
+  .drawer-toggle:checked ~ .drawer-side .drawer-overlay { @apply opacity-100; }
+
+  @media (min-width: 1024px) {
+    .lg\:drawer-open { @apply flex; }
+    .lg\:drawer-open .drawer-content { @apply flex-1 min-w-0; }
+    .lg\:drawer-open .drawer-side {
+      @apply static visible z-auto w-64 shrink-0 self-stretch;
+      order: -1;
+    }
+    .lg\:drawer-open .drawer-side > aside { @apply translate-x-0; }
+    .lg\:drawer-open .drawer-overlay { @apply hidden; }
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full border border-base-300
+           bg-base-200 px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-sm { @apply px-2 py-0 text-[0.7rem]; }
+  .badge-ghost { @apply border-transparent bg-base-200; }
+  .badge-outline { @apply border-base-300 bg-transparent; }
+  .badge-success { @apply border-transparent bg-success/15 text-success; }
+
+  /* Alerts */
+  .alert {
+    @apply flex items-center gap-2 rounded-lg border border-base-300
+           bg-base-100 px-4 py-3 text-sm;
+  }
+  .alert svg { @apply w-[1.15em] h-[1.15em] shrink-0; }
+  .alert-error { @apply border-error/30 bg-error/10 text-error; }
+
+  /* Stats */
+  .stats { @apply flex rounded-xl border border-base-300 bg-base-100 divide-x divide-base-300; }
+  .stat { @apply flex-1 px-5 py-4; }
+  .stat-title { @apply text-xs opacity-60; }
+  .stat-value { @apply text-2xl font-bold; }
+  .stat-desc { @apply text-xs opacity-60; }
+
+  /* Join (segmented control) */
+  .join { @apply inline-flex; }
+  .join-item:not(:first-child) { @apply -ml-px rounded-l-none; }
+  .join-item:not(:last-child) { @apply rounded-r-none; }
+
+  /* Progress */
+  .progress {
+    @apply h-2 w-full appearance-none overflow-hidden rounded-full bg-base-300;
+  }
+  .progress::-webkit-progress-bar { background-color: var(--color-base-300); }
+  .progress::-webkit-progress-value { background-color: var(--color-primary); }
+  .progress::-moz-progress-bar { background-color: var(--color-primary); }
+  .progress-primary::-webkit-progress-value { background-color: var(--color-primary); }
+  .progress-primary::-moz-progress-bar { background-color: var(--color-primary); }
+}

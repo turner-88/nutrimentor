@@ -1,0 +1,8 @@
+/bin/
+/tmp/
+/main
+*.log
+.env
+.DS_Store
+static/uploads/
+/node_modules/
