@@ -1,7 +1,16 @@
 package handler
 
 import (
+	"html"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/remorac/sebaya-app/internal/shared/util"
@@ -13,6 +22,45 @@ type articleListItem struct {
 	Slug           string `json:"slug"`
 	Category       string `json:"category"`
 	CoverImagePath string `json:"cover_image_path"`
+	Excerpt        string `json:"excerpt"`
+}
+
+var htmlTagRE = regexp.MustCompile(`<[^>]*>`)
+
+// excerptFromHTML derives a plain-text summary from article body HTML,
+// truncated at a word boundary up to maxLen characters.
+func excerptFromHTML(s string, maxLen int) string {
+	text := html.UnescapeString(htmlTagRE.ReplaceAllString(s, " "))
+	text = strings.TrimSpace(strings.Join(strings.Fields(text), " "))
+	if len(text) <= maxLen {
+		return text
+	}
+	cut := text[:maxLen]
+	if i := strings.LastIndex(cut, " "); i > 0 {
+		cut = cut[:i]
+	}
+	return strings.TrimSpace(cut) + "…"
+}
+
+// coverDimensions returns the pixel width/height of an uploaded cover image, or
+// 0,0 when it can't be read (missing file, unknown format). coverPath is the
+// public path like "/static/uploads/x.jpeg"; files live on disk under the same
+// relative path from the server's working directory.
+func coverDimensions(coverPath string) (int, int) {
+	rel := strings.TrimPrefix(coverPath, "/")
+	if !strings.HasPrefix(rel, "static/uploads/") {
+		return 0, 0
+	}
+	f, err := os.Open(filepath.Clean(rel))
+	if err != nil {
+		return 0, 0
+	}
+	defer f.Close()
+	cfg, _, err := image.DecodeConfig(f)
+	if err != nil {
+		return 0, 0
+	}
+	return cfg.Width, cfg.Height
 }
 
 // ListEducation returns published education articles (summaries).
@@ -27,6 +75,7 @@ func (h *Handler) ListEducation(w http.ResponseWriter, r *http.Request) {
 		out = append(out, articleListItem{
 			ID: a.ID, Title: a.Title, Slug: a.Slug,
 			Category: a.Category, CoverImagePath: a.CoverImagePath,
+			Excerpt: excerptFromHTML(a.BodyHtml, 140),
 		})
 	}
 	util.WriteSuccess(w, "", out)
@@ -40,12 +89,15 @@ func (h *Handler) GetEducation(w http.ResponseWriter, r *http.Request) {
 		util.WriteNotFound(w, "Artikel tidak ditemukan.")
 		return
 	}
+	coverW, coverH := coverDimensions(a.CoverImagePath)
 	util.WriteSuccess(w, "", map[string]any{
 		"id":               a.ID,
 		"title":            a.Title,
 		"slug":             a.Slug,
 		"category":         a.Category,
 		"cover_image_path": a.CoverImagePath,
+		"cover_width":      coverW,
+		"cover_height":     coverH,
 		"body_html":        a.BodyHtml,
 	})
 }

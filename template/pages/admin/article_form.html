@@ -1,43 +1,47 @@
+{{define "actions"}}
+<a href="/admin/articles" class="btn btn-sm btn-outline"><i data-lucide="arrow-left"></i> Kembali</a>
+{{end}}
+
 {{define "content"}}
-<a href="/admin/articles" class="btn btn-ghost btn-sm mb-4"><i data-lucide="arrow-left"></i> Kembali</a>
-<div class="card bg-base-100 shadow-sm max-w-2xl">
+<div class="card max-w-2xl">
   <div class="card-body">
-    <form method="post" action="{{if .IsNew}}/admin/articles/new{{else}}/admin/articles/{{.A.ID}}/edit{{end}}" enctype="multipart/form-data" class="space-y-4">
-      <div>
-        <label class="label"><span class="label-text">Judul</span></label>
-        <input type="text" name="title" value="{{.A.Title}}" class="input input-bordered w-full" required>
+    <form method="post" action="{{if .IsNew}}/admin/articles/new{{else}}/admin/articles/{{.A.ID}}/edit{{end}}" enctype="multipart/form-data" class="flex flex-col gap-4">
+      <div class="field">
+        <span class="label-text">Judul</span>
+        <input type="text" name="title" value="{{.A.Title}}" class="input input-bordered" required>
       </div>
       <div class="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label class="label"><span class="label-text">Slug (opsional)</span></label>
-          <input type="text" name="slug" value="{{.A.Slug}}" placeholder="otomatis dari judul" class="input input-bordered w-full">
+        <div class="field">
+          <span class="label-text">Slug <span class="text-base-content/40">(opsional)</span></span>
+          <input type="text" name="slug" value="{{.A.Slug}}" placeholder="otomatis dari judul" class="input input-bordered">
         </div>
-        <div>
-          <label class="label"><span class="label-text">Kategori</span></label>
-          <input type="text" name="category" value="{{.A.Category}}" class="input input-bordered w-full">
+        <div class="field">
+          <span class="label-text">Kategori</span>
+          <input type="text" name="category" value="{{.A.Category}}" class="input input-bordered">
         </div>
       </div>
-      <div>
-        <label class="label"><span class="label-text">Gambar Sampul</span></label>
-        <input type="file" name="cover" accept="image/*" class="file-input file-input-bordered w-full">
+      <div class="field">
+        <span class="label-text">Gambar Sampul</span>
+        <input type="file" name="cover" accept="image/*" class="file-input file-input-bordered">
         <input type="hidden" name="existing_cover" value="{{.A.CoverImagePath}}">
-        {{if .A.CoverImagePath}}<img src="{{.A.CoverImagePath}}" class="mt-2 h-24 rounded-lg object-cover">{{end}}
+        {{if .A.CoverImagePath}}<img src="{{.A.CoverImagePath}}" class="mt-1 h-28 rounded-lg object-cover border border-base-300">{{end}}
       </div>
-      <div>
-        <label class="label"><span class="label-text">Isi (HTML)</span></label>
-        <textarea name="body_html" rows="12" class="textarea textarea-bordered w-full font-mono text-sm" required>{{.A.BodyHtml}}</textarea>
+      <div class="field">
+        <span class="label-text">Isi <span class="text-base-content/40">(HTML)</span></span>
+        <textarea name="body_html" rows="12" class="textarea textarea-bordered font-mono text-[13px]" required>{{.A.BodyHtml}}</textarea>
       </div>
-      <div class="flex items-center gap-6">
-        <label class="label cursor-pointer gap-2">
-          <input type="checkbox" name="is_published" class="checkbox checkbox-primary" {{if .A.IsPublished}}checked{{end}}>
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-1 border-t border-base-300">
+        <label class="switch">
+          <input type="checkbox" name="is_published" {{if .A.IsPublished}}checked{{end}}>
+          <span class="track"></span>
           <span class="label-text">Terbitkan</span>
         </label>
-        <div class="flex items-center gap-2">
+        <div class="field flex-row items-center gap-2">
           <span class="label-text">Urutan</span>
           <input type="number" name="sort_order" value="{{.A.SortOrder}}" class="input input-bordered input-sm w-20">
         </div>
       </div>
-      <button class="btn btn-primary">Simpan Artikel</button>
+      <button class="btn btn-primary self-start"><i data-lucide="save"></i> Simpan Artikel</button>
     </form>
   </div>
 </div>

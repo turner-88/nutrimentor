@@ -1,0 +1,30 @@
+[Unit]
+Description=SebayaDM backend (Go API + admin panel)
+Documentation=https://github.com/remorac/sebaya-app
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sebaya
+Group=sebaya
+WorkingDirectory=/opt/sebaya/app
+EnvironmentFile=/opt/sebaya/app/.env
+ExecStart=/opt/sebaya/app/bin/server
+Restart=on-failure
+RestartSec=5
+
+# Logging goes to the journal: `journalctl -u sebaya -f`
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sebaya
+
+# Hardening. The app only needs to write uploaded files under static/uploads.
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/sebaya/app/static/uploads
+
+[Install]
+WantedBy=multi-user.target

@@ -29,6 +29,77 @@ func (h *Handler) ListGroups(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// memberStat is one row of a group's member roster with 30-day adherence.
+type memberStat struct {
+	User          db.User
+	CompliantDays int64
+	ScorePercent  int
+}
+
+// GroupDetail renders a peer group's profile, edit form, and member roster
+// with each member's 30-day adherence (same metric as Monitoring).
+func (h *Handler) GroupDetail(w http.ResponseWriter, r *http.Request) {
+	id := atoi32(chi.URLParam(r, "id"))
+	ctx := r.Context()
+	g, err := h.store.GetPeerGroup(ctx, id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	users, _ := h.store.ListPatientsByGroup(ctx, toNullInt32(id))
+
+	to := todayLocal()
+	from := to.AddDate(0, 0, -(monitorWindowDays - 1))
+	members := make([]memberStat, 0, len(users))
+	sum := 0
+	for _, u := range users {
+		days, _ := h.store.CountCompliantDays(ctx, db.CountCompliantDaysParams{UserID: u.ID, LogDate: from, LogDate_2: to})
+		score := int(days * 100 / monitorWindowDays)
+		sum += score
+		members = append(members, memberStat{User: u, CompliantDays: days, ScorePercent: score})
+	}
+	avg := 0
+	if len(members) > 0 {
+		avg = sum / len(members)
+	}
+
+	h.render(w, r, "group_detail", map[string]any{
+		"ActiveNav":  "groups",
+		"Title":      g.Name,
+		"Subtitle":   "Profil kelompok dan kepatuhan anggota.",
+		"G":          g,
+		"Members":    members,
+		"AvgScore":   avg,
+		"WindowDays": monitorWindowDays,
+	})
+}
+
+// NewGroupForm renders the create-group form.
+func (h *Handler) NewGroupForm(w http.ResponseWriter, r *http.Request) {
+	h.render(w, r, "group_form", map[string]any{
+		"ActiveNav": "groups",
+		"Title":     "Kelompok Baru",
+		"IsNew":     true,
+		"G":         db.PeerGroup{},
+	})
+}
+
+// EditGroupForm renders the edit-group form.
+func (h *Handler) EditGroupForm(w http.ResponseWriter, r *http.Request) {
+	id := atoi32(chi.URLParam(r, "id"))
+	g, err := h.store.GetPeerGroup(r.Context(), id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	h.render(w, r, "group_form", map[string]any{
+		"ActiveNav": "groups",
+		"Title":     "Ubah Kelompok",
+		"IsNew":     false,
+		"G":         g,
+	})
+}
+
 // CreateGroup adds a new peer group.
 func (h *Handler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
@@ -60,7 +131,7 @@ func (h *Handler) UpdateGroup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Gagal.", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/admin/groups", http.StatusFound)
+	http.Redirect(w, r, "/admin/groups/"+chi.URLParam(r, "id"), http.StatusFound)
 }
 
 // DeleteGroup removes a peer group (patients are detached via ON DELETE SET NULL).

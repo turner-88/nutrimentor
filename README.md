@@ -68,6 +68,36 @@ GET  /api/leaderboard              (caller's peer group)
 
 All `/api` routes except auth + education require `Authorization: Bearer <jwt>`.
 
+## Deploy to production
+
+Deployment runs the Go binary as a systemd service behind nginx (TLS via Let's Encrypt),
+targeting `https://sebayadm.remorac.com`. Everything lives in `deploy/`:
+
+| File | Purpose |
+|---|---|
+| `deploy/setup.sh` | One-time provisioning (Debian/Ubuntu): installs Go/Node/nginx/certbot/migrate, creates the `sebaya` user + `/opt/sebaya/app` checkout, the MariaDB DB/user, `.env`, the systemd unit, the nginx site, and the TLS cert, then runs the first deploy. |
+| `deploy/deploy.sh` | Repeatable deploy: `git pull` → `make css` + `make build` → `make migrate-up` → restart service → health-check. |
+| `deploy/sebaya.service` | systemd unit (`WorkingDirectory=/opt/sebaya/app`, `EnvironmentFile=.env`). |
+| `deploy/nginx/sebayadm.remorac.com.conf` | nginx reverse proxy → `127.0.0.1:8081`. |
+| `.env.production.example` | Production env template (bind to loopback, `ENV=production`). |
+
+First-time provisioning (point the DNS A record at the server first):
+
+```bash
+git clone https://github.com/remorac/sebaya-app.git /tmp/sebaya && cd /tmp/sebaya
+sudo bash deploy/setup.sh          # override defaults via env, e.g. CERTBOT_EMAIL=you@example.com
+```
+
+Subsequent releases:
+
+```bash
+cd /opt/sebaya/app && sudo -u sebaya ./deploy/deploy.sh
+```
+
+The backend binds `127.0.0.1:8081` and nginx terminates TLS in front of it. Uploaded files
+persist under `/opt/sebaya/app/static/uploads`; FCM credentials (if used) go in
+`/opt/sebaya/app/secrets/`. Logs: `journalctl -u sebaya -f`.
+
 ## Android app — build & run
 
 Open `android/` in Android Studio, or from the CLI (JDK 17+, Android SDK 35):
@@ -77,9 +107,35 @@ cd android
 JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew :app:assembleDebug
 ```
 
-The app targets `http://10.0.2.2:8080/api/` (host machine from the Android emulator) — see
-`API_BASE_URL` in `android/app/build.gradle.kts`. Run the backend, launch an emulator, install
-the debug APK, then register/login and use the daily-log screens.
+`API_BASE_URL` is set per build type in `android/app/build.gradle.kts`: **debug** targets a LAN
+dev host (`http://192.168…:8081/api/` — edit for your machine's IP or use `10.0.2.2` on the
+emulator), **release** targets production `https://sebayadm.remorac.com/api/`. Run the backend,
+launch an emulator, install the debug APK, then register/login and use the daily-log screens.
+
+### Release APK (signed)
+
+Two files are required and are gitignored — provide them before building:
+
+1. `android/app/google-services.json` — from the Firebase console (the `google-services`
+   plugin fails the build without it).
+2. `android/keystore.properties` — copy from `keystore.properties.example` and point it at a
+   keystore you generate:
+
+   ```bash
+   cd android
+   keytool -genkeypair -v -keystore sebaya-release.jks \
+     -keyalg RSA -keysize 2048 -validity 10000 -alias sebaya
+   ```
+
+Then build the signed APK:
+
+```bash
+cd android
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew :app:assembleRelease
+# → android/app/build/outputs/apk/release/app-release.apk
+```
+
+If `keystore.properties` is absent the release build still runs but produces an unsigned APK.
 
 ## Architecture notes
 

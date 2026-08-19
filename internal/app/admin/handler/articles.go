@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -22,6 +24,22 @@ func (h *Handler) ListArticles(w http.ResponseWriter, r *http.Request) {
 		"ActiveNav": "articles",
 		"Title":     "Edukasi",
 		"Articles":  articles,
+	})
+}
+
+// ArticleDetail renders the read-only article detail page.
+func (h *Handler) ArticleDetail(w http.ResponseWriter, r *http.Request) {
+	id := atoi32(chi.URLParam(r, "id"))
+	a, err := h.store.GetArticleByID(r.Context(), id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	h.render(w, r, "article_detail", map[string]any{
+		"ActiveNav": "articles",
+		"Title":     a.Title,
+		"A":         a,
+		"Body":      template.HTML(a.BodyHtml), // admin-authored, trusted HTML
 	})
 }
 
@@ -73,6 +91,9 @@ func (h *Handler) SaveArticle(w http.ResponseWriter, r *http.Request) {
 		cover = path
 	}
 
+	// Notify patients only when an article becomes newly published.
+	newlyPublished := false
+
 	if id == 0 {
 		if _, err := h.store.CreateArticleTx(r.Context(), db.CreateArticleParams{
 			Title: title, Slug: slug, Category: strings.TrimSpace(r.FormValue("category")),
@@ -82,7 +103,9 @@ func (h *Handler) SaveArticle(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Gagal menyimpan: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		newlyPublished = published
 	} else {
+		prev, _ := h.store.GetArticleByID(r.Context(), id)
 		if err := h.store.UpdateArticleTx(r.Context(), db.UpdateArticleParams{
 			Title: title, Slug: slug, Category: strings.TrimSpace(r.FormValue("category")),
 			CoverImagePath: cover, BodyHtml: r.FormValue("body_html"),
@@ -91,7 +114,14 @@ func (h *Handler) SaveArticle(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Gagal menyimpan: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		newlyPublished = published && !prev.IsPublished
 	}
+
+	if newlyPublished && h.notify != nil {
+		// Fire-and-forget so the admin request is not blocked on FCM.
+		go h.notify.NewArticle(context.Background(), title, slug)
+	}
+
 	http.Redirect(w, r, "/admin/articles", http.StatusFound)
 }
 

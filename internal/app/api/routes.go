@@ -19,6 +19,7 @@ func Routes(cfg *config.Config, s *store.Store) chi.Router {
 	// Public auth
 	r.Post("/auth/register", h.Register)
 	r.Post("/auth/login", h.Login)
+	r.Post("/auth/forgot-password", h.ForgotPassword)
 
 	// Public education (read-only)
 	r.Get("/education", h.ListEducation)
@@ -29,6 +30,8 @@ func Routes(cfg *config.Config, s *store.Store) chi.Router {
 		r.Use(mw.RequireAuth(&mw.AuthConfig{JWTSecret: cfg.JWT.SecretKey}))
 
 		r.Get("/me", h.Me)
+		r.Put("/me", h.UpdateMe)
+		r.Post("/me/password", h.ChangePassword)
 		r.Get("/dashboard", h.Dashboard)
 
 		r.Post("/logs/medication", h.LogMedication)
@@ -41,6 +44,10 @@ func Routes(cfg *config.Config, s *store.Store) chi.Router {
 		r.Get("/logs/glucose", h.ListGlucose)
 
 		r.Get("/leaderboard", h.Leaderboard)
+
+		// Push notification device-token registration.
+		r.Post("/me/device-token", h.RegisterDeviceToken)
+		r.Delete("/me/device-token", h.UnregisterDeviceToken)
 	})
 
 	return r

@@ -1,0 +1,29 @@
+{{define "actions"}}
+<a href="/admin/articles" class="btn btn-sm btn-outline"><i data-lucide="arrow-left"></i> Kembali</a>
+<a href="/admin/articles/{{.A.ID}}/edit" class="btn btn-sm btn-primary"><i data-lucide="pencil"></i> Ubah</a>
+{{end}}
+
+{{define "content"}}
+<div class="card max-w-3xl">
+  {{if .A.CoverImagePath}}
+  <img src="{{.A.CoverImagePath}}" class="w-full max-h-72 object-cover">
+  {{end}}
+  <div class="card-body gap-4">
+    <div>
+      <h2 class="text-2xl font-bold font-heading">{{.A.Title}}</h2>
+      <div class="flex flex-wrap items-center gap-1.5 mt-2">
+        {{if .A.IsPublished}}<span class="pill pill-success"><span class="dot"></span>Terbit</span>{{else}}<span class="pill pill-muted">Draf</span>{{end}}
+        {{if .A.Category}}<span class="pill">{{.A.Category}}</span>{{end}}
+        <span class="pill pill-muted">Urutan {{.A.SortOrder}}</span>
+      </div>
+      <div class="text-sm text-base-content/50 mt-2">
+        Dibuat {{md .A.CreatedAt}} · Diperbarui {{md .A.UpdatedAt}}
+        {{if .A.Slug}}· <span class="font-mono">/{{.A.Slug}}</span>{{end}}
+      </div>
+    </div>
+    <div class="prose max-w-none border-t border-base-300 pt-4 text-sm leading-relaxed">
+      {{.Body}}
+    </div>
+  </div>
+</div>
+{{end}}

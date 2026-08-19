@@ -199,6 +199,15 @@ type AuditTrail struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 
+type DeviceToken struct {
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	Token     string    `json:"token"`
+	Platform  string    `json:"platform"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type DietLog struct {
 	ID              int32     `json:"id"`
 	UserID          int32     `json:"user_id"`
@@ -241,6 +250,15 @@ type MedicationLog struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
+type PasswordResetToken struct {
+	ID        int32        `json:"id"`
+	UserID    int32        `json:"user_id"`
+	TokenHash string       `json:"token_hash"`
+	ExpiresAt time.Time    `json:"expires_at"`
+	UsedAt    sql.NullTime `json:"used_at"`
+	CreatedAt time.Time    `json:"created_at"`
+}
+
 type PeerGroup struct {
 	ID          int32     `json:"id"`
 	Name        string    `json:"name"`
@@ -263,4 +281,5 @@ type User struct {
 	IsActive     bool             `json:"is_active"`
 	CreatedAt    time.Time        `json:"created_at"`
 	UpdatedAt    time.Time        `json:"updated_at"`
+	Email        sql.NullString   `json:"email"`
 }

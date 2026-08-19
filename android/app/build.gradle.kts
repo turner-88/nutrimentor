@@ -1,8 +1,20 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+}
+
+// Release signing credentials, kept out of version control. Copy
+// keystore.properties.example → keystore.properties and fill it in. When the
+// file is absent (e.g. debug-only builds, CI without secrets) release signing
+// is simply left unconfigured rather than failing to configure the project.
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
 android {
@@ -15,16 +27,35 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+    }
 
-        // Base URL of the SebayaDM backend API.
-        // Android emulator reaches the host machine at 10.0.2.2.
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/api/\"")
+    signingConfigs {
+        if (keystorePropsFile.exists()) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            // Base URL of the SebayaDM backend API for local development.
+            // Android emulator reaches the host machine at 10.0.2.2;
+            // a physical device on the same Wi-Fi uses the host's LAN IP.
+            // Port 8081 because a local nginx occupies 8080 on the host.
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.8.167:8081/api/\"")
+        }
         release {
+            // Production API, served over TLS behind nginx.
+            buildConfigField("String", "API_BASE_URL", "\"https://sebayadm.remorac.com/api/\"")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystorePropsFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
@@ -62,6 +93,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     debugImplementation(libs.androidx.ui.tooling)
 }

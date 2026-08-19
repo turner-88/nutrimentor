@@ -3,12 +3,12 @@
 /* Scan the server-rendered templates for the utility classes actually used. */
 @source "../../template";
 
-/* ------------------------------------------------------------------ */
-/* Theme — emerald palette + Sora / Plus Jakarta Sans typography.       */
-/* Defining the color tokens here regenerates the semantic utilities    */
-/* (bg-primary, text-primary-content, border-base-300, bg-primary/10…)  */
-/* so the templates keep working without touching their class names.    */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Theme — SebayaDM clinical identity                                  */
+/* Emerald brand + a five-pillar accent system, Sora / Plus Jakarta.   */
+/* Defining color tokens here regenerates the semantic utilities        */
+/* (bg-primary, text-primary-content, border-base-300, bg-primary/10…). */
+/* ================================================================== */
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-heading: "Sora", ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -19,13 +19,14 @@
   --color-secondary-content: #ffffff;
   --color-accent: #d97706;
   --color-accent-content: #ffffff;
-  --color-neutral: #1f2937;
+  --color-neutral: #12332a;
   --color-neutral-content: #ffffff;
 
   --color-base-100: #ffffff;
-  --color-base-200: #f5f7f6;
-  --color-base-300: #e2e8e5;
+  --color-base-200: #f3f6f5;
+  --color-base-300: #e3eae7;
   --color-base-content: #1f2933;
+  --color-ink: #12332a;
 
   --color-info: #0284c7;
   --color-info-content: #ffffff;
@@ -35,122 +36,57 @@
   --color-warning-content: #ffffff;
   --color-error: #dc2626;
   --color-error-content: #ffffff;
+
+  /* Pillar accents — used sparingly (dots, heatmap legend, detail icons). */
+  --color-obat: #6366f1;
+  --color-aktivitas: #f59e0b;
+  --color-diet: #f43f5e;
+  --color-gula: #0ea5e9;
+  --color-edukasi: #059669;
 }
 
-/* ------------------------------------------------------------------ */
-/* Base                                                                 */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Base                                                                */
+/* ================================================================== */
 @layer base {
   body {
-    @apply font-sans text-base-content;
+    @apply font-sans text-base-content antialiased overflow-x-hidden;
   }
   h1, h2, h3, h4, .card-title {
-    @apply font-heading;
+    @apply font-heading tracking-tight;
+    color: var(--color-ink);
+  }
+  .num, .stat-value, table td.num, table th.num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Components — in-house replacements for the daisyUI classes the       */
-/* admin templates use. Class names are preserved intentionally.        */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Components                                                          */
+/* ================================================================== */
 @layer components {
 
-  /* Buttons */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 select-none cursor-pointer
-           h-10 px-4 rounded-lg border border-transparent
-           bg-base-200 text-base-content text-sm font-medium
-           transition-colors hover:bg-base-300;
+  /* ---- Micro-label -------------------------------------------------- */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em];
+    color: color-mix(in srgb, var(--color-base-content) 45%, transparent);
   }
-  .btn svg { @apply w-[1.15em] h-[1.15em]; }
-  .btn-primary { @apply bg-primary text-primary-content border-transparent hover:bg-primary hover:opacity-90; }
-  .btn-outline { @apply bg-transparent border-base-300 text-base-content hover:bg-base-200; }
-  .btn-ghost   { @apply bg-transparent border-transparent hover:bg-base-200; }
-  .btn-active  { @apply bg-base-300; }
-  .btn-square  { @apply w-10 px-0 aspect-square; }
-  .btn-sm      { @apply h-8 px-3 text-xs; }
-  .btn-xs      { @apply h-6 px-2 text-xs; }
-  .btn-sm.btn-square { @apply w-8; }
 
-  /* Cards */
-  .card       { @apply rounded-xl border border-base-300 bg-base-100; }
-  .card-body  { @apply p-5 flex flex-col gap-2; }
-  .card-title { @apply font-semibold; }
-
-  /* Text inputs — works both as a bare <input class="input"> and as a
-     <label class="input"> flex wrapper containing a stripped inner input. */
-  .input {
-    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
-           px-3 text-sm outline-none transition-colors;
-  }
-  label.input { @apply inline-flex items-center gap-2; }
-  .input:focus, .input:focus-within { @apply border-primary; }
-  .input :where(input, select, textarea) {
-    @apply h-full w-full grow border-0 bg-transparent p-0 outline-none;
-  }
-  .input-bordered { @apply border border-base-300; }
-  .input-sm { @apply h-8 px-2 text-xs; }
-
-  /* Select */
-  .select {
-    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
-           px-3 text-sm outline-none transition-colors;
-  }
-  .select:focus { @apply border-primary; }
-  .select-bordered { @apply border border-base-300; }
-  .select-sm { @apply h-8 px-2 text-xs; }
-
-  /* Textarea */
-  .textarea {
-    @apply w-full rounded-lg border border-base-300 bg-base-100
-           p-3 text-sm outline-none transition-colors;
-  }
-  .textarea:focus { @apply border-primary; }
-  .textarea-bordered { @apply border border-base-300; }
-  .textarea-sm { @apply p-2 text-xs; }
-
-  /* Checkbox */
-  .checkbox {
-    @apply h-5 w-5 rounded border border-base-300 align-middle;
-    accent-color: var(--color-primary);
-  }
-  .checkbox-primary { accent-color: var(--color-primary); }
-
-  /* Tables */
-  .table { @apply w-full text-left text-sm border-collapse; }
-  .table th {
-    @apply px-3 py-2 text-xs font-semibold border-b border-base-300;
-    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
-  }
-  .table td { @apply px-3 py-2 border-b border-base-300 align-middle; }
-  .table-sm th, .table-sm td { @apply px-2 py-1; }
-
-  /* Sidebar menu */
-  .menu { @apply flex flex-col; }
-  .menu li > a {
-    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm
-           transition-colors hover:bg-base-200;
-  }
-  .menu li > a svg { @apply w-[1.15em] h-[1.15em]; }
-  .menu li > a.menu-active,
-  .menu-active { @apply bg-primary text-primary-content hover:bg-primary; }
-
-  /* Navbar */
-  .navbar { @apply flex items-center min-h-14 px-4; }
-
-  /* Drawer — responsive sidebar. Mobile: off-canvas overlay toggled by the
-     checkbox via a <label>. Desktop (lg): sidebar pinned, content offset. */
+  /* ---- App shell ---------------------------------------------------- */
   .drawer { @apply relative; }
   .drawer-toggle { @apply sr-only; }
-  .drawer-side {
-    @apply fixed inset-0 z-40 invisible;
+  .drawer-content { @apply min-h-screen; }
+  .main { @apply p-5 md:p-8 w-full; }
+
+  .topbar {
+    @apply sticky top-0 z-10 flex items-center gap-2 h-14 px-4
+           bg-base-100/90 backdrop-blur border-b border-base-300;
   }
-  .drawer-side > aside {
-    @apply h-full -translate-x-full transition-transform duration-200;
-  }
-  .drawer-overlay {
-    @apply absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200;
-  }
+
+  .drawer-side { @apply fixed inset-0 z-40 invisible; }
+  .drawer-side > aside { @apply h-full -translate-x-full transition-transform duration-200; }
+  .drawer-overlay { @apply absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200; }
   .drawer-toggle:checked ~ .drawer-side { @apply visible; }
   .drawer-toggle:checked ~ .drawer-side > aside { @apply translate-x-0; }
   .drawer-toggle:checked ~ .drawer-side .drawer-overlay { @apply opacity-100; }
@@ -166,43 +102,320 @@
     .lg\:drawer-open .drawer-overlay { @apply hidden; }
   }
 
-  /* Badges */
-  .badge {
-    @apply inline-flex items-center gap-1 rounded-full border border-base-300
-           bg-base-200 px-2.5 py-0.5 text-xs font-medium;
+  /* ---- Sidebar ------------------------------------------------------ */
+  .sidebar {
+    @apply w-64 min-h-full flex flex-col bg-base-100 border-e border-base-300;
   }
-  .badge-sm { @apply px-2 py-0 text-[0.7rem]; }
-  .badge-ghost { @apply border-transparent bg-base-200; }
-  .badge-outline { @apply border-base-300 bg-transparent; }
-  .badge-success { @apply border-transparent bg-success/15 text-success; }
-
-  /* Alerts */
-  .alert {
-    @apply flex items-center gap-2 rounded-lg border border-base-300
-           bg-base-100 px-4 py-3 text-sm;
+  .brand { @apply flex items-center gap-2.5 px-5 h-16 border-b border-base-300; }
+  .brand-mark {
+    @apply grid place-items-center w-9 h-9 rounded-xl text-primary-content shrink-0;
+    background: linear-gradient(140deg, #10b981, #047857);
   }
-  .alert svg { @apply w-[1.15em] h-[1.15em] shrink-0; }
-  .alert-error { @apply border-error/30 bg-error/10 text-error; }
+  .brand-mark svg { @apply w-[18px] h-[18px]; }
+  .nav-scroll { @apply flex-1 overflow-y-auto py-3; }
+  .nav-section { @apply px-3 mb-1; }
+  .nav-label { @apply px-2 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.09em];
+    color: color-mix(in srgb, var(--color-base-content) 38%, transparent); }
 
-  /* Stats */
-  .stats { @apply flex rounded-xl border border-base-300 bg-base-100 divide-x divide-base-300; }
+  .menu { @apply flex flex-col gap-0.5; }
+  .menu li > a {
+    @apply relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+           text-base-content/75 transition-colors hover:bg-base-200 hover:text-base-content;
+  }
+  .menu li > a svg { @apply w-[18px] h-[18px] shrink-0 opacity-70; }
+  .menu li > a.menu-active,
+  a.menu-active {
+    @apply bg-primary/10 text-primary font-semibold hover:bg-primary/10 hover:text-primary;
+  }
+  .menu li > a.menu-active svg,
+  a.menu-active svg { @apply opacity-100; }
+  .menu li > a.menu-active::before,
+  a.menu-active::before {
+    content: "";
+    @apply absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-primary;
+  }
+  .sidebar-foot { @apply mt-auto p-3 border-t border-base-300 flex items-center gap-2.5; }
+  .sidebar-foot .btn svg { @apply w-[18px] h-[18px]; }
+
+  /* ---- Avatar / monogram ------------------------------------------- */
+  .avatar {
+    @apply grid place-items-center rounded-full font-semibold shrink-0
+           bg-primary/12 text-primary text-xs w-9 h-9;
+    font-family: var(--font-heading);
+  }
+  .avatar-lg { @apply w-14 h-14 text-base rounded-2xl; }
+
+  /* ---- Page header -------------------------------------------------- */
+  .page-header {
+    @apply flex flex-wrap items-end justify-between gap-4 mb-6 pb-5 border-b border-base-300;
+  }
+  .page-title { @apply text-[1.6rem] leading-tight font-bold; }
+  .page-subtitle { @apply text-sm mt-1 text-base-content/60; }
+  .page-actions { @apply flex flex-wrap items-center gap-2; }
+  .breadcrumb {
+    @apply inline-flex items-center gap-1.5 text-sm mb-4 text-base-content/60
+           hover:text-primary transition-colors;
+  }
+  .breadcrumb svg { @apply w-4 h-4; }
+
+  /* ---- Buttons ------------------------------------------------------ */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 select-none cursor-pointer
+           h-10 px-4 rounded-lg border text-sm font-medium
+           border-base-300 bg-base-100 text-base-content
+           transition-colors hover:bg-base-200;
+  }
+  .btn svg { @apply w-[1.05em] h-[1.05em]; }
+  .btn-primary {
+    @apply text-primary-content border-transparent hover:opacity-95;
+    background: linear-gradient(140deg, #10b981, #059669);
+  }
+  .btn-outline { @apply bg-transparent border-base-300 text-base-content hover:bg-base-200; }
+  .btn-ghost   { @apply bg-transparent border-transparent hover:bg-base-200; }
+  .btn-active  { @apply bg-primary/10 border-primary/20 text-primary; }
+  .btn-square  { @apply w-10 px-0 aspect-square; }
+  .btn-sm      { @apply h-8 px-3 text-[13px]; }
+  .btn-xs      { @apply h-7 px-2.5 text-xs; }
+  .btn-sm.btn-square { @apply w-8; }
+
+  /* ---- Cards -------------------------------------------------------- */
+  .card {
+    @apply rounded-2xl border border-base-300 bg-base-100 overflow-hidden;
+    box-shadow: 0 1px 2px rgba(16, 40, 34, 0.04), 0 1px 3px rgba(16, 40, 34, 0.03);
+  }
+  .card-body { @apply p-5 flex flex-col gap-3; }
+  .card-header {
+    @apply flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-5 py-4 border-b border-base-300;
+  }
+  .card-title { @apply text-base font-semibold min-w-0; }
+  .card-note { @apply text-sm text-base-content/55 whitespace-nowrap; }
+
+  /* ---- Stat cards --------------------------------------------------- */
+  .stat-card {
+    @apply flex items-center gap-4 rounded-2xl border border-base-300 bg-base-100 p-5;
+    box-shadow: 0 1px 2px rgba(16, 40, 34, 0.04);
+  }
+  .stat-ic { @apply grid place-items-center w-12 h-12 rounded-xl shrink-0; }
+  .stat-ic svg { @apply w-5 h-5; }
+  .stat-num { @apply text-[1.7rem] leading-none font-bold font-heading; font-variant-numeric: tabular-nums; }
+  .stat-lbl { @apply text-sm text-base-content/60 mt-1; }
+
+  /* daisyUI-compatible stats block (patient detail) */
+  .stats { @apply flex rounded-2xl border border-base-300 bg-base-100 divide-x divide-base-300; }
   .stat { @apply flex-1 px-5 py-4; }
-  .stat-title { @apply text-xs opacity-60; }
-  .stat-value { @apply text-2xl font-bold; }
-  .stat-desc { @apply text-xs opacity-60; }
+  .stat-title { @apply text-xs uppercase tracking-wide text-base-content/50; }
+  .stat-value { @apply text-3xl font-bold font-heading; }
+  .stat-desc { @apply text-xs text-base-content/55 mt-0.5; }
 
-  /* Join (segmented control) */
+  /* ---- Pills / badges ---------------------------------------------- */
+  .pill, .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5
+           text-xs font-medium border border-base-300 bg-base-200 text-base-content/80;
+  }
+  .pill svg, .badge svg { @apply w-3 h-3; }
+  .pill-success, .badge-success { @apply border-transparent; background: color-mix(in srgb, var(--color-success) 14%, white); color: #15803d; }
+  .pill-warning { @apply border-transparent; background: color-mix(in srgb, var(--color-warning) 16%, white); color: #b45309; }
+  .pill-danger  { @apply border-transparent; background: color-mix(in srgb, var(--color-error) 12%, white); color: #b91c1c; }
+  .pill-info    { @apply border-transparent; background: color-mix(in srgb, var(--color-info) 12%, white); color: #0369a1; }
+  .pill-muted, .badge-ghost { @apply bg-base-200 border-transparent text-base-content/60; }
+  .badge-outline { @apply bg-transparent border-base-300 text-base-content/70; }
+  .badge-sm { @apply px-2 py-0 text-[11px]; }
+
+  /* status dot inside a pill */
+  .pill .dot { @apply w-1.5 h-1.5 rounded-full bg-current; }
+
+  /* ---- Tables ------------------------------------------------------- */
+  .table { @apply w-full text-left text-sm border-collapse; }
+  .table thead th {
+    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.06em]
+           border-b border-base-300 bg-base-100;
+    color: color-mix(in srgb, var(--color-base-content) 50%, transparent);
+  }
+  .table tbody td { @apply px-4 py-3 border-b border-base-300 align-middle; }
+  .table tbody tr:last-child td { @apply border-b-0; }
+  .table tbody tr { @apply transition-colors; }
+  .table tbody tr:hover td { background: color-mix(in srgb, var(--color-primary) 4%, white); }
+  .table td.num, .table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-sm thead th { @apply px-3 py-2; }
+  .table-sm tbody td { @apply px-3 py-2; }
+  .table-wrap { @apply overflow-x-auto; }
+
+  /* name cell: monogram + stacked label */
+  .who { @apply flex items-center gap-3; }
+  .who-name { @apply font-medium leading-tight; color: var(--color-ink); }
+  .who-sub { @apply text-xs text-base-content/55 leading-tight; }
+
+  /* ---- Empty state -------------------------------------------------- */
+  .empty { @apply flex flex-col items-center text-center gap-1 py-12 px-6; }
+  .empty-ic {
+    @apply grid place-items-center w-12 h-12 rounded-2xl mb-2
+           bg-base-200 text-base-content/40;
+  }
+  .empty-ic svg { @apply w-6 h-6; }
+  .empty-title { @apply font-semibold; color: var(--color-ink); }
+  .empty-hint { @apply text-sm text-base-content/55 max-w-xs; }
+
+  /* ---- Pagination --------------------------------------------------- */
+  .pagination { @apply flex items-center gap-1 mt-5; }
+  .pagination a, .pagination span {
+    @apply inline-flex items-center justify-center min-w-9 h-9 px-3 rounded-lg
+           text-sm font-medium border border-base-300 bg-base-100
+           text-base-content/70 transition-colors hover:bg-base-200;
+  }
+  .pagination .is-active {
+    @apply text-primary-content border-transparent hover:opacity-95;
+    background: linear-gradient(140deg, #10b981, #059669);
+  }
+
+  /* ---- Forms -------------------------------------------------------- */
+  .field { @apply flex flex-col gap-1.5; }
+  .label { @apply flex items-center; }
+  .label-text, .field > .label-text {
+    @apply text-[13px] font-medium text-base-content/80;
+  }
+  .hint { @apply text-xs text-base-content/50; }
+
+  .input {
+    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
+           px-3 text-sm outline-none transition-colors
+           placeholder:text-base-content/40;
+  }
+  label.input { @apply inline-flex items-center gap-2; }
+  .input:focus, .input:focus-within,
+  .select:focus, .textarea:focus {
+    @apply border-primary;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+  }
+  .input :where(input, select, textarea) {
+    @apply h-full w-full grow border-0 bg-transparent p-0 outline-none placeholder:text-base-content/40;
+  }
+  .input-bordered { @apply border border-base-300; }
+  .input-sm { @apply h-8 px-2.5 text-[13px]; }
+
+  .select {
+    @apply h-10 w-full rounded-lg border border-base-300 bg-base-100
+           px-3 text-sm outline-none transition-colors;
+  }
+  .select-bordered { @apply border border-base-300; }
+  .select-sm { @apply h-8 px-2.5 text-[13px]; }
+
+  .textarea {
+    @apply w-full rounded-lg border border-base-300 bg-base-100
+           p-3 text-sm outline-none transition-colors leading-relaxed
+           placeholder:text-base-content/40;
+  }
+  .textarea-bordered { @apply border border-base-300; }
+  .textarea-sm { @apply p-2.5 text-[13px]; }
+
+  .checkbox {
+    @apply h-5 w-5 rounded-md border border-base-300 align-middle cursor-pointer;
+    accent-color: var(--color-primary);
+  }
+
+  /* file input */
+  .file-input {
+    @apply w-full text-sm text-base-content/70 rounded-lg border border-base-300 bg-base-100 cursor-pointer;
+  }
+  .file-input::file-selector-button {
+    @apply mr-3 h-10 px-4 border-0 cursor-pointer text-sm font-medium
+           bg-base-200 text-base-content hover:bg-base-300;
+  }
+  .file-input-bordered { @apply border border-base-300; }
+
+  /* switch (published toggle) */
+  .switch { @apply inline-flex items-center gap-2.5 cursor-pointer select-none; }
+  .switch input { @apply sr-only; }
+  .switch .track {
+    @apply relative w-10 h-6 rounded-full bg-base-300 transition-colors;
+  }
+  .switch .track::after {
+    content: "";
+    @apply absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .switch input:checked + .track { @apply bg-primary; }
+  .switch input:checked + .track::after { @apply translate-x-4; }
+
+  /* segmented control (study arm) */
+  .segmented { @apply inline-flex p-1 rounded-lg bg-base-200 border border-base-300 gap-1 w-full; }
+  .segmented label {
+    @apply flex-1 text-center text-[13px] font-medium py-1.5 px-3 rounded-md cursor-pointer
+           text-base-content/60 transition-colors;
+  }
+  .segmented input { @apply sr-only; }
+  .segmented input:checked + label,
+  .segmented label:has(input:checked) {
+    @apply bg-base-100 text-primary shadow-sm;
+  }
+
+  /* ---- Bars (comparison / score) ------------------------------------ */
+  .bar { @apply h-2 w-full rounded-full overflow-hidden bg-base-200; }
+  .bar > span { @apply block h-full rounded-full; background: linear-gradient(90deg, #10b981, #059669); }
+
+  .progress {
+    @apply h-2 w-full appearance-none overflow-hidden rounded-full bg-base-200;
+  }
+  .progress::-webkit-progress-bar { background-color: var(--color-base-200); }
+  .progress::-webkit-progress-value { background: linear-gradient(90deg, #10b981, #059669); border-radius: 9999px; }
+  .progress::-moz-progress-bar { background: #059669; }
+
+  /* ---- Join (segmented buttons) ------------------------------------- */
   .join { @apply inline-flex; }
   .join-item:not(:first-child) { @apply -ml-px rounded-l-none; }
   .join-item:not(:last-child) { @apply rounded-r-none; }
 
-  /* Progress */
-  .progress {
-    @apply h-2 w-full appearance-none overflow-hidden rounded-full bg-base-300;
+  /* ---- Alerts ------------------------------------------------------- */
+  .alert {
+    @apply flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm
+           border-base-300 bg-base-100;
   }
-  .progress::-webkit-progress-bar { background-color: var(--color-base-300); }
-  .progress::-webkit-progress-value { background-color: var(--color-primary); }
-  .progress::-moz-progress-bar { background-color: var(--color-primary); }
-  .progress-primary::-webkit-progress-value { background-color: var(--color-primary); }
-  .progress-primary::-moz-progress-bar { background-color: var(--color-primary); }
+  .alert svg { @apply w-[1.1em] h-[1.1em] shrink-0; }
+  .alert-error { @apply border-error/25; background: color-mix(in srgb, var(--color-error) 8%, white); color: #b91c1c; }
+
+  /* ================================================================ */
+  /* Signature — 30-day adherence heatmap + pillar system              */
+  /* ================================================================ */
+  .heatmap { @apply flex flex-wrap gap-1.5; }
+  .heat {
+    @apply w-[18px] h-[18px] rounded-[5px] border;
+    border-color: color-mix(in srgb, var(--color-ink) 6%, transparent);
+  }
+  .heat.lv0 { background: var(--color-base-200); }
+  .heat.lv1 { background: color-mix(in srgb, var(--color-primary) 28%, white); }
+  .heat.lv2 { background: color-mix(in srgb, var(--color-primary) 55%, white); }
+  .heat.lv3 { background: var(--color-primary); border-color: transparent; }
+  .heat.nodata { background: repeating-linear-gradient(45deg, #eef2f0 0 3px, #f7faf9 3px 6px); }
+
+  .legend { @apply flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-base-content/55; }
+  .legend .scale { @apply inline-flex items-center gap-1; }
+  .legend .scale i { @apply w-3 h-3 rounded-[4px] border border-black/5 not-italic; }
+
+  .pillar-dot { @apply inline-block w-2.5 h-2.5 rounded-full; }
+  .pillar-obat { background: var(--color-obat); }
+  .pillar-aktivitas { background: var(--color-aktivitas); }
+  .pillar-diet { background: var(--color-diet); }
+  .pillar-gula { background: var(--color-gula); }
+  .pillar-edukasi { background: var(--color-edukasi); }
+
+  /* per-pillar mini-summary row */
+  .pillar-row { @apply flex items-center gap-3 py-2; }
+  .pillar-row .name { @apply flex items-center gap-2 text-sm w-32 shrink-0; }
+  .pillar-row .count { @apply text-sm font-medium text-base-content/70 w-16 text-right; font-variant-numeric: tabular-nums; }
+
+  /* ---- Modal (native <dialog>) -------------------------------------- */
+  .modal {
+    @apply w-full max-w-lg rounded-2xl border border-base-300 bg-base-100 p-0 shadow-xl;
+  }
+  .modal::backdrop { background: rgb(0 0 0 / .4); }
+  .modal-box { @apply flex flex-col; }
+  .modal-header {
+    @apply flex items-center justify-between gap-3 px-5 py-4 border-b border-base-300;
+  }
+  .modal-title { @apply text-base font-semibold; color: var(--color-ink); }
+  .modal-close { @apply text-base-content/50 hover:text-base-content cursor-pointer; }
+  .modal-close svg { @apply w-5 h-5; }
+  .modal-body { @apply flex flex-col gap-3 px-5 py-4 max-h-[70vh] overflow-y-auto; }
+  .modal-footer {
+    @apply flex justify-end gap-2 px-5 py-4 border-t border-base-300;
+  }
 }

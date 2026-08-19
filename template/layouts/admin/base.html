@@ -13,41 +13,71 @@
 <body class="min-h-screen bg-base-200">
 <div class="drawer lg:drawer-open">
   <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
-  <div class="drawer-content flex flex-col">
-    <!-- Topbar -->
-    <div class="navbar bg-base-100 border-b border-base-300 lg:hidden">
-      <label for="nav-drawer" class="btn btn-square btn-ghost"><i data-lucide="menu"></i></label>
-      <span class="font-bold ms-2">SebayaDM</span>
-    </div>
-    <main class="p-4 md:p-8 max-w-6xl w-full mx-auto">
-      <h1 class="text-2xl font-bold mb-6">{{.Title}}</h1>
+  <div class="drawer-content">
+    <!-- Mobile topbar -->
+    <header class="topbar lg:hidden">
+      <label for="nav-drawer" class="btn btn-square btn-ghost btn-sm"><i data-lucide="menu"></i></label>
+      <div class="brand-mark w-8 h-8"><i data-lucide="activity"></i></div>
+      <span class="font-heading font-bold">SebayaDM</span>
+    </header>
+
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">{{.Title}}</h1>
+          {{if .Subtitle}}<p class="page-subtitle">{{.Subtitle}}</p>{{end}}
+        </div>
+        <div class="page-actions">{{block "actions" .}}{{end}}</div>
+      </div>
       {{template "content" .}}
     </main>
   </div>
-  <div class="drawer-side z-20">
+
+  <div class="drawer-side z-40">
     <label for="nav-drawer" class="drawer-overlay"></label>
-    <aside class="w-64 min-h-full bg-base-100 border-e border-base-300 flex flex-col">
-      <div class="px-5 py-4 border-b border-base-300 flex items-center gap-2">
-        <div class="w-9 h-9 rounded-lg bg-primary text-primary-content grid place-items-center">
-          <i data-lucide="activity"></i>
-        </div>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><i data-lucide="activity"></i></div>
         <div>
-          <div class="font-bold leading-tight">SebayaDM</div>
-          <div class="text-xs opacity-60 leading-tight">Admin Panel</div>
+          <div class="font-heading font-bold leading-tight" style="color:var(--color-ink)">SebayaDM</div>
+          <div class="text-[11px] text-base-content/55 leading-tight">Panel Admin</div>
         </div>
       </div>
-      <ul class="menu p-3 gap-1 flex-1">
+
+      <nav class="nav-scroll">
         {{$n := .ActiveNav}}
-        <li><a href="/admin/dashboard" class="{{if eq $n "dashboard"}}menu-active{{end}}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
-        <li><a href="/admin/patients" class="{{if eq $n "patients"}}menu-active{{end}}"><i data-lucide="users"></i> Responden</a></li>
-        <li><a href="/admin/groups" class="{{if eq $n "groups"}}menu-active{{end}}"><i data-lucide="users-round"></i> Kelompok Sebaya</a></li>
-        <li><a href="/admin/articles" class="{{if eq $n "articles"}}menu-active{{end}}"><i data-lucide="book-open"></i> Edukasi</a></li>
-        <li><a href="/admin/monitoring" class="{{if eq $n "monitoring"}}menu-active{{end}}"><i data-lucide="line-chart"></i> Monitoring</a></li>
-        <li><a href="/admin/audit" class="{{if eq $n "audit"}}menu-active{{end}}"><i data-lucide="history"></i> Audit Trail</a></li>
-      </ul>
-      <div class="p-3 border-t border-base-300">
-        {{with .AuthUser}}<div class="px-2 text-sm opacity-70 mb-2">{{.Username}}</div>{{end}}
-        <a href="/admin/logout" class="btn btn-ghost btn-sm w-full justify-start"><i data-lucide="log-out"></i> Keluar</a>
+        <div class="nav-section">
+          <div class="nav-label">Ringkasan</div>
+          <ul class="menu">
+            <li><a href="/admin/dashboard" class="{{if eq $n "dashboard"}}menu-active{{end}}"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Data</div>
+          <ul class="menu">
+            <li><a href="/admin/patients" class="{{if eq $n "patients"}}menu-active{{end}}"><i data-lucide="users"></i> Responden</a></li>
+            <li><a href="/admin/groups" class="{{if eq $n "groups"}}menu-active{{end}}"><i data-lucide="users-round"></i> Kelompok Sebaya</a></li>
+            <li><a href="/admin/articles" class="{{if eq $n "articles"}}menu-active{{end}}"><i data-lucide="book-open"></i> Edukasi</a></li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Analisis</div>
+          <ul class="menu">
+            <li><a href="/admin/monitoring" class="{{if eq $n "monitoring"}}menu-active{{end}}"><i data-lucide="activity-square"></i> Monitoring</a></li>
+            <li><a href="/admin/audit" class="{{if eq $n "audit"}}menu-active{{end}}"><i data-lucide="history"></i> Audit Trail</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="sidebar-foot">
+        {{with .AuthUser}}
+        <div class="avatar">{{initials .Username}}</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-medium truncate" style="color:var(--color-ink)">{{.Username}}</div>
+          <div class="text-[11px] text-base-content/50">Administrator</div>
+        </div>
+        {{end}}
+        <a href="/admin/logout" class="btn btn-ghost btn-square btn-sm" title="Keluar"><i data-lucide="log-out"></i></a>
       </div>
     </aside>
   </div>

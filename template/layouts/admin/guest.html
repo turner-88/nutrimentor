@@ -10,17 +10,27 @@
     <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <link rel="stylesheet" href="/static/css/admin.css">
 </head>
-<body class="min-h-screen grid lg:grid-cols-2 bg-base-200">
-  <div class="hidden lg:flex flex-col justify-between bg-primary text-primary-content p-12">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-primary-content/15 grid place-items-center"><i data-lucide="activity"></i></div>
-      <div><div class="font-bold text-lg leading-tight">SebayaDM</div><div class="text-xs opacity-70">Admin Panel</div></div>
+<body class="min-h-screen grid lg:grid-cols-2 bg-base-100">
+  <div class="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden"
+       style="background:linear-gradient(150deg,#065f46,#047857 55%,#059669)">
+    <!-- faint pillar motif -->
+    <div class="absolute inset-0 opacity-[0.14] pointer-events-none"
+         style="background-image:radial-gradient(circle at 1px 1px,#fff 1.5px,transparent 0);background-size:26px 26px"></div>
+    <div class="relative flex items-center gap-3">
+      <div class="grid place-items-center w-10 h-10 rounded-xl bg-white/15"><i data-lucide="activity"></i></div>
+      <div><div class="font-heading font-bold text-lg leading-tight">SebayaDM</div><div class="text-xs text-white/70">Panel Admin</div></div>
     </div>
-    <div>
-      <h2 class="text-3xl font-bold leading-snug mb-4">Edukasi Manajemen Diabetes<br>Kelompok Sebaya</h2>
-      <p class="opacity-70 text-sm max-w-sm">Pantau kepatuhan diet, konsumsi obat, aktivitas fisik, dan perawatan mandiri penderita Diabetes Mellitus.</p>
+    <div class="relative">
+      <h2 class="font-heading text-3xl font-bold leading-snug mb-4 text-white">Edukasi Manajemen Diabetes<br>Kelompok Sebaya</h2>
+      <p class="text-white/75 text-sm max-w-sm leading-relaxed">Pantau kepatuhan konsumsi obat, aktivitas fisik, diet, dan gula darah penderita Diabetes Mellitus dalam kelompok sebaya.</p>
+      <div class="flex flex-wrap gap-2 mt-6">
+        <span class="pill bg-white/10 border-white/20 text-white/90"><span class="pillar-dot pillar-obat"></span> Obat</span>
+        <span class="pill bg-white/10 border-white/20 text-white/90"><span class="pillar-dot pillar-aktivitas"></span> Aktivitas</span>
+        <span class="pill bg-white/10 border-white/20 text-white/90"><span class="pillar-dot pillar-diet"></span> Diet</span>
+        <span class="pill bg-white/10 border-white/20 text-white/90"><span class="pillar-dot pillar-gula"></span> Gula Darah</span>
+      </div>
     </div>
-    <p class="opacity-40 text-xs">&copy; {{.Year}} SebayaDM</p>
+    <p class="relative text-white/45 text-xs">&copy; {{.Year}} SebayaDM</p>
   </div>
   <div class="flex items-center justify-center p-8">
     <div class="w-full max-w-sm">

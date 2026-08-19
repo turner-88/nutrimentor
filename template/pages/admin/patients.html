@@ -1,40 +1,54 @@
-{{define "content"}}
-<form method="get" class="flex gap-2 mb-4">
-  <input type="text" name="q" value="{{.Search}}" placeholder="Cari nama atau username…" class="input input-bordered input-sm w-full max-w-xs">
-  <button class="btn btn-sm btn-primary">Cari</button>
+{{define "actions"}}
+<form method="get" class="join">
+  <input type="text" name="q" value="{{.Search}}" placeholder="Cari nama atau username…" class="input input-bordered input-sm join-item w-56">
+  <button class="btn btn-sm btn-primary join-item"><i data-lucide="search"></i></button>
 </form>
+{{end}}
 
-<div class="card bg-base-100 shadow-sm">
-  <div class="overflow-x-auto">
+{{define "content"}}
+<div class="card">
+  <div class="table-wrap">
     <table class="table">
       <thead>
-        <tr><th>Nama</th><th>Username</th><th>Usia</th><th>JK</th><th>Study Arm</th><th>Status</th><th></th></tr>
+        <tr><th>Nama</th><th>Usia</th><th>JK</th><th>Study Arm</th><th>Status</th><th></th></tr>
       </thead>
       <tbody>
         {{range .Patients}}
         <tr>
-          <td class="font-medium">{{.NamaLengkap}}</td>
-          <td class="opacity-70">{{.Username}}</td>
-          <td>{{.Usia}}</td>
+          <td>
+            <div class="who">
+              <div class="avatar">{{initials .NamaLengkap}}</div>
+              <div><div class="who-name">{{.NamaLengkap}}</div><div class="who-sub">@{{.Username}}</div></div>
+            </div>
+          </td>
+          <td class="num">{{.Usia}}</td>
           <td>{{.JenisKelamin}}</td>
-          <td>{{if .StudyArm.Valid}}<span class="badge badge-outline">{{.StudyArm.UserStudyArm}}</span>{{else}}<span class="opacity-40">—</span>{{end}}</td>
-          <td>{{if .IsActive}}<span class="badge badge-success badge-sm">Aktif</span>{{else}}<span class="badge badge-ghost badge-sm">Nonaktif</span>{{end}}</td>
-          <td class="text-right"><a href="/admin/patients/{{.ID}}" class="btn btn-xs btn-ghost">Detail</a></td>
+          <td>{{if .StudyArm.Valid}}<span class="pill pill-info">{{.StudyArm.UserStudyArm}}</span>{{else}}<span class="text-base-content/30">—</span>{{end}}</td>
+          <td>{{if .IsActive}}<span class="pill pill-success"><span class="dot"></span>Aktif</span>{{else}}<span class="pill pill-muted">Nonaktif</span>{{end}}</td>
+          <td class="text-right"><a href="/admin/patients/{{.ID}}" class="btn btn-xs btn-ghost">Detail <i data-lucide="chevron-right"></i></a></td>
         </tr>
         {{else}}
-        <tr><td colspan="7" class="text-center opacity-50 py-8">Belum ada responden.</td></tr>
+        <tr><td colspan="6">
+          <div class="empty">
+            <div class="empty-ic"><i data-lucide="users"></i></div>
+            <div class="empty-title">Belum ada responden</div>
+            <p class="empty-hint">Responden yang mendaftar lewat aplikasi akan muncul di sini.</p>
+          </div>
+        </td></tr>
         {{end}}
       </tbody>
     </table>
   </div>
 </div>
 
-{{if gt .TotalPages 1}}
-<div class="join mt-4">
-  {{range seq .TotalPages}}
-  <a href="?q={{$.Search}}&page={{.}}" class="join-item btn btn-sm {{if eq . $.Page}}btn-active{{end}}">{{.}}</a>
+<div class="flex items-center justify-between flex-wrap gap-3">
+  <p class="text-sm text-base-content/55 mt-4">Total <span class="num font-medium text-base-content">{{.Total}}</span> responden</p>
+  {{if gt .TotalPages 1}}
+  <div class="pagination">
+    {{range seq .TotalPages}}
+    <a href="?q={{$.Search}}&page={{.}}" class="{{if eq . $.Page}}is-active{{end}}">{{.}}</a>
+    {{end}}
+  </div>
   {{end}}
 </div>
-{{end}}
-<p class="text-sm opacity-60 mt-2">Total: {{.Total}} responden</p>
 {{end}}

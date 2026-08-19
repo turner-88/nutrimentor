@@ -1,0 +1,66 @@
+{{define "actions"}}
+<a href="/admin/groups" class="btn btn-sm btn-outline"><i data-lucide="arrow-left"></i> Kembali</a>
+<a href="/admin/groups/{{.G.ID}}/edit" class="btn btn-sm btn-primary"><i data-lucide="pencil"></i> Ubah</a>
+{{end}}
+
+{{define "content"}}
+<div class="grid gap-4 lg:grid-cols-3">
+  <!-- Left: group info + edit + delete -->
+  <div class="flex flex-col gap-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="flex items-center gap-3">
+          <div class="avatar avatar-lg" style="background:color-mix(in srgb,var(--color-secondary) 12%,white);color:var(--color-secondary)"><i data-lucide="users-round" class="w-5 h-5"></i></div>
+          <div class="min-w-0">
+            <h2 class="card-title text-lg truncate">{{.G.Name}}</h2>
+            <div class="who-sub">Dibuat {{md .G.CreatedAt}}</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-1">
+          <span class="pill pill-muted">{{len .Members}} anggota</span>
+          <span class="pill pill-info">{{.AvgScore}}% kepatuhan · {{.WindowDays}} hari</span>
+        </div>
+        {{if .G.Description}}<p class="text-sm text-base-content/60 mt-2">{{.G.Description}}</p>{{end}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: member roster -->
+  <div class="lg:col-span-2">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Anggota</h3><span class="card-note">kepatuhan {{.WindowDays}} hari</span></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Nama</th><th>Study Arm</th><th>Status</th><th class="num">Kepatuhan</th><th></th></tr>
+          </thead>
+          <tbody>
+            {{range .Members}}
+            <tr>
+              <td>
+                <div class="who">
+                  <div class="avatar">{{initials .User.NamaLengkap}}</div>
+                  <div><div class="who-name">{{.User.NamaLengkap}}</div><div class="who-sub">@{{.User.Username}}</div></div>
+                </div>
+              </td>
+              <td>{{if .User.StudyArm.Valid}}<span class="pill pill-info">{{.User.StudyArm.UserStudyArm}}</span>{{else}}<span class="text-base-content/30">—</span>{{end}}</td>
+              <td>{{if .User.IsActive}}<span class="pill pill-success"><span class="dot"></span>Aktif</span>{{else}}<span class="pill pill-muted">Nonaktif</span>{{end}}</td>
+              <td class="num font-medium">{{.ScorePercent}}%</td>
+              <td class="text-right"><a href="/admin/patients/{{.User.ID}}" class="btn btn-xs btn-ghost">Detail <i data-lucide="chevron-right"></i></a></td>
+            </tr>
+            {{else}}
+            <tr><td colspan="5">
+              <div class="empty">
+                <div class="empty-ic"><i data-lucide="users"></i></div>
+                <div class="empty-title">Belum ada anggota</div>
+                <p class="empty-hint">Tetapkan responden ke kelompok ini lewat halaman detail responden.</p>
+              </div>
+            </td></tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

@@ -1,27 +1,35 @@
+{{define "actions"}}
+<a href="/admin/articles/new" class="btn btn-sm btn-primary"><i data-lucide="plus"></i> Artikel Baru</a>
+{{end}}
+
 {{define "content"}}
-<div class="flex justify-end mb-4">
-  <a href="/admin/articles/new" class="btn btn-primary btn-sm"><i data-lucide="plus"></i> Artikel Baru</a>
-</div>
-<div class="card bg-base-100 shadow-sm">
-  <div class="overflow-x-auto">
+<div class="card">
+  <div class="table-wrap">
     <table class="table">
-      <thead><tr><th>Judul</th><th>Kategori</th><th>Status</th><th>Urutan</th><th></th></tr></thead>
+      <thead><tr><th>Judul</th><th>Kategori</th><th>Status</th><th class="num">Urutan</th><th></th></tr></thead>
       <tbody>
         {{range .Articles}}
         <tr>
-          <td class="font-medium">{{.Title}}</td>
-          <td class="opacity-70">{{if .Category}}{{.Category}}{{else}}—{{end}}</td>
-          <td>{{if .IsPublished}}<span class="badge badge-success badge-sm">Terbit</span>{{else}}<span class="badge badge-ghost badge-sm">Draf</span>{{end}}</td>
-          <td>{{.SortOrder}}</td>
+          <td><a href="/admin/articles/{{.ID}}" class="who-name link link-hover">{{.Title}}</a></td>
+          <td>{{if .Category}}<span class="pill">{{.Category}}</span>{{else}}<span class="text-base-content/30">—</span>{{end}}</td>
+          <td>{{if .IsPublished}}<span class="pill pill-success"><span class="dot"></span>Terbit</span>{{else}}<span class="pill pill-muted">Draf</span>{{end}}</td>
+          <td class="num">{{.SortOrder}}</td>
           <td class="text-right whitespace-nowrap">
-            <a href="/admin/articles/{{.ID}}/edit" class="btn btn-xs btn-ghost">Ubah</a>
+            <a href="/admin/articles/{{.ID}}/edit" class="btn btn-xs btn-ghost"><i data-lucide="pencil"></i> Ubah</a>
             <form method="post" action="/admin/articles/{{.ID}}/delete" class="inline" onsubmit="return confirm('Hapus artikel ini?')">
-              <button class="btn btn-xs btn-ghost text-error">Hapus</button>
+              <button class="btn btn-xs btn-ghost text-error"><i data-lucide="trash-2"></i></button>
             </form>
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="5" class="text-center opacity-50 py-8">Belum ada artikel.</td></tr>
+        <tr><td colspan="5">
+          <div class="empty">
+            <div class="empty-ic"><i data-lucide="book-open"></i></div>
+            <div class="empty-title">Belum ada artikel</div>
+            <p class="empty-hint">Tambahkan materi edukasi diabetes untuk responden.</p>
+            <a href="/admin/articles/new" class="btn btn-sm btn-primary mt-2"><i data-lucide="plus"></i> Artikel Baru</a>
+          </div>
+        </td></tr>
         {{end}}
       </tbody>
     </table>

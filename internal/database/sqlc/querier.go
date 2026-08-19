@@ -7,6 +7,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 type Querier interface {
@@ -19,9 +20,11 @@ type Querier interface {
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (sql.Result, error)
 	CreateAuditTrail(ctx context.Context, arg CreateAuditTrailParams) (sql.Result, error)
 	CreateGlucoseLog(ctx context.Context, arg CreateGlucoseLogParams) (sql.Result, error)
+	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (sql.Result, error)
 	CreatePeerGroup(ctx context.Context, arg CreatePeerGroupParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	DeleteArticle(ctx context.Context, id int32) error
+	DeleteDeviceToken(ctx context.Context, token string) error
 	DeletePeerGroup(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
 	GetActivityLog(ctx context.Context, arg GetActivityLogParams) (ActivityLog, error)
@@ -31,24 +34,30 @@ type Querier interface {
 	GetDietLog(ctx context.Context, arg GetDietLogParams) (DietLog, error)
 	GetMedicationLog(ctx context.Context, arg GetMedicationLogParams) (MedicationLog, error)
 	GetPeerGroup(ctx context.Context, id int32) (PeerGroup, error)
+	GetUserByEmail(ctx context.Context, email sql.NullString) (User, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetValidResetToken(ctx context.Context, tokenHash string) (PasswordResetToken, error)
+	ListActivePatientTokens(ctx context.Context) ([]string, error)
 	ListActivityLogs(ctx context.Context, arg ListActivityLogsParams) ([]ActivityLog, error)
 	ListAllArticles(ctx context.Context) ([]EducationArticle, error)
 	ListAuditTrails(ctx context.Context, arg ListAuditTrailsParams) ([]AuditTrail, error)
 	ListDietLogs(ctx context.Context, arg ListDietLogsParams) ([]DietLog, error)
 	ListGlucoseLogs(ctx context.Context, arg ListGlucoseLogsParams) ([]GlucoseLog, error)
 	ListMedicationLogs(ctx context.Context, arg ListMedicationLogsParams) ([]MedicationLog, error)
+	ListPatientTokensNeedingReminder(ctx context.Context, day time.Time) ([]string, error)
 	ListPatients(ctx context.Context, arg ListPatientsParams) ([]User, error)
 	ListPatientsByGroup(ctx context.Context, groupID sql.NullInt32) ([]User, error)
 	ListPeerGroups(ctx context.Context) ([]PeerGroup, error)
 	ListPublishedArticles(ctx context.Context) ([]EducationArticle, error)
+	MarkResetTokenUsed(ctx context.Context, id int32) error
 	SetUserActive(ctx context.Context, arg SetUserActiveParams) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) error
 	UpdatePeerGroup(ctx context.Context, arg UpdatePeerGroupParams) error
 	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error
 	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) error
 	UpsertActivityLog(ctx context.Context, arg UpsertActivityLogParams) (sql.Result, error)
+	UpsertDeviceToken(ctx context.Context, arg UpsertDeviceTokenParams) (sql.Result, error)
 	UpsertDietLog(ctx context.Context, arg UpsertDietLogParams) (sql.Result, error)
 	UpsertMedicationLog(ctx context.Context, arg UpsertMedicationLogParams) (sql.Result, error)
 }

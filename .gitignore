@@ -6,3 +6,12 @@
 .DS_Store
 static/uploads/
 /node_modules/
+
+# Firebase credentials — never commit
+/secrets/
+android/app/google-services.json
+
+# Android release signing — never commit
+android/keystore.properties
+android/**/*.jks
+android/**/*.keystore

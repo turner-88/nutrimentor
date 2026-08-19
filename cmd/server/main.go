@@ -19,7 +19,10 @@ import (
 	"github.com/remorac/sebaya-app/internal/database"
 	"github.com/remorac/sebaya-app/internal/database/store"
 	"github.com/remorac/sebaya-app/internal/shared/config"
+	"github.com/remorac/sebaya-app/internal/shared/fcm"
 	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
+	"github.com/remorac/sebaya-app/internal/shared/notify"
+	"github.com/remorac/sebaya-app/internal/shared/scheduler"
 )
 
 func main() {
@@ -36,6 +39,18 @@ func main() {
 	log.Println("Database connected")
 
 	s := store.New(db)
+
+	// Push notifications (FCM). Degrades to a logging no-op when unconfigured.
+	sender, err := fcm.New(cfg.FCM)
+	if err != nil {
+		log.Fatalf("Failed to init FCM: %v", err)
+	}
+	notifier := notify.New(s, sender)
+
+	// Daily log-reminder scheduler; stops on shutdown via rootCtx.
+	rootCtx, rootCancel := context.WithCancel(context.Background())
+	defer rootCancel()
+	scheduler.StartDailyReminder(rootCtx, cfg, notifier)
 
 	r := chi.NewRouter()
 	r.Use(mw.Logger)
@@ -56,7 +71,7 @@ func main() {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	})
 
-	r.Mount("/admin", admin.Routes(cfg, s))
+	r.Mount("/admin", admin.Routes(cfg, s, notifier))
 	r.Mount("/api", api.Routes(cfg, s))
 
 	srv := &http.Server{Addr: cfg.ServerAddr(), Handler: r}

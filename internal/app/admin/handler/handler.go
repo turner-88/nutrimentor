@@ -1,20 +1,24 @@
 package handler
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	assets "github.com/remorac/sebaya-app"
 	"github.com/remorac/sebaya-app/internal/database/store"
 	"github.com/remorac/sebaya-app/internal/shared/config"
 	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
+	"github.com/remorac/sebaya-app/internal/shared/notify"
 )
 
 // Handler holds dependencies and pre-parsed templates for the admin panel.
 type Handler struct {
 	config *config.Config
 	store  *store.Store
+	notify *notify.Service
 
 	// page templates rendered inside the base (authenticated) layout
 	pages map[string]*template.Template
@@ -23,16 +27,60 @@ type Handler struct {
 }
 
 var funcs = template.FuncMap{
-	"add":     func(a, b int) int { return a + b },
-	"sub":     func(a, b int) int { return a - b },
-	"seq":     func(n int) []int { s := make([]int, n); for i := range s { s[i] = i + 1 }; return s },
-	"pct":     func(a, b int64) int { if b == 0 { return 0 }; return int(a * 100 / b) },
-	"ymd":     func(t time.Time) string { return t.Format("2006-01-02") },
+	"add": func(a, b int) int { return a + b },
+	"sub": func(a, b int) int { return a - b },
+	"seq": func(n int) []int {
+		s := make([]int, n)
+		for i := range s {
+			s[i] = i + 1
+		}
+		return s
+	},
+	"pct": func(a, b int64) int {
+		if b == 0 {
+			return 0
+		}
+		return int(a * 100 / b)
+	},
+	"ratio": func(a, b int) int {
+		if b == 0 {
+			return 0
+		}
+		return a * 100 / b
+	},
+	"ymd":      func(t time.Time) string { return t.Format("2006-01-02") },
+	"md":       func(t time.Time) string { return t.Format("02 Jan") },
 	"datetime": func(t time.Time) string { return t.Format("2006-01-02 15:04") },
+	"initials": initials,
+	"timing": func(v any) string {
+		switch fmt.Sprintf("%v", v) {
+		case "before_meal":
+			return "Sebelum makan"
+		case "after_meal":
+			return "Sesudah makan"
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	},
+}
+
+// initials returns up to two uppercase initials for a monogram avatar.
+func initials(name string) string {
+	parts := strings.Fields(name)
+	if len(parts) == 0 {
+		return "?"
+	}
+	first := []rune(parts[0])
+	out := strings.ToUpper(string(first[0]))
+	if len(parts) > 1 {
+		last := []rune(parts[len(parts)-1])
+		out += strings.ToUpper(string(last[0]))
+	}
+	return out
 }
 
 // New parses all admin templates and returns a Handler.
-func New(cfg *config.Config, s *store.Store) *Handler {
+func New(cfg *config.Config, s *store.Store, notifier *notify.Service) *Handler {
 	base := "template/layouts/admin/base.html"
 	guestLayout := "template/layouts/admin/guest.html"
 
@@ -47,18 +95,23 @@ func New(cfg *config.Config, s *store.Store) *Handler {
 	return &Handler{
 		config: cfg,
 		store:  s,
+		notify: notifier,
 		pages: map[string]*template.Template{
 			"dashboard":      page("template/pages/admin/dashboard.html"),
 			"patients":       page("template/pages/admin/patients.html"),
 			"patient_detail": page("template/pages/admin/patient_detail.html"),
 			"groups":         page("template/pages/admin/groups.html"),
+			"group_detail":   page("template/pages/admin/group_detail.html"),
+			"group_form":     page("template/pages/admin/group_form.html"),
 			"articles":       page("template/pages/admin/articles.html"),
 			"article_form":   page("template/pages/admin/article_form.html"),
+			"article_detail": page("template/pages/admin/article_detail.html"),
 			"monitoring":     page("template/pages/admin/monitoring.html"),
 			"audit":          page("template/pages/admin/audit.html"),
 		},
 		guest: map[string]*template.Template{
-			"login": guestPage("template/pages/admin/login.html"),
+			"login":          guestPage("template/pages/admin/login.html"),
+			"reset_password": guestPage("template/pages/admin/reset_password.html"),
 		},
 	}
 }

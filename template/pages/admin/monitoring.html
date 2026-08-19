@@ -1,28 +1,42 @@
+{{define "actions"}}
+<a href="/admin/monitoring/export.csv" class="btn btn-sm btn-outline"><i data-lucide="download"></i> Export CSV</a>
+{{end}}
+
 {{define "content"}}
-<div class="flex items-center justify-between mb-4">
-  <p class="text-sm opacity-60">Kepatuhan (semua pilar terpenuhi) dalam {{.WindowDays}} hari terakhir.</p>
-  <a href="/admin/monitoring/export.csv" class="btn btn-sm btn-outline"><i data-lucide="download"></i> Export CSV</a>
-</div>
-<div class="card bg-base-100 shadow-sm">
-  <div class="overflow-x-auto">
+<div class="card">
+  <div class="card-header">
+    <span class="card-note">Kepatuhan penuh (semua pilar) dalam {{.WindowDays}} hari terakhir.</span>
+  </div>
+  <div class="table-wrap">
     <table class="table">
-      <thead><tr><th>Nama</th><th>Kelompok</th><th>Study Arm</th><th>Hari Patuh</th><th>Skor</th></tr></thead>
+      <thead><tr><th>Nama</th><th>Kelompok</th><th>Study Arm</th><th class="num">Hari Patuh</th><th>Skor</th></tr></thead>
       <tbody>
         {{range .Rows}}
         <tr>
-          <td class="font-medium">{{.User.NamaLengkap}}</td>
-          <td class="opacity-70">{{if .GroupName}}{{.GroupName}}{{else}}—{{end}}</td>
-          <td>{{if .User.StudyArm.Valid}}<span class="badge badge-outline badge-sm">{{.User.StudyArm.UserStudyArm}}</span>{{else}}—{{end}}</td>
-          <td>{{.CompliantDays}} / {{$.WindowDays}}</td>
           <td>
-            <div class="flex items-center gap-2">
-              <progress class="progress progress-primary w-24" value="{{.ScorePercent}}" max="100"></progress>
-              <span class="text-sm">{{.ScorePercent}}%</span>
+            <div class="who">
+              <div class="avatar">{{initials .User.NamaLengkap}}</div>
+              <div><div class="who-name">{{.User.NamaLengkap}}</div><div class="who-sub">@{{.User.Username}}</div></div>
+            </div>
+          </td>
+          <td class="text-base-content/70 text-sm">{{if .GroupName}}{{.GroupName}}{{else}}<span class="text-base-content/30">—</span>{{end}}</td>
+          <td>{{if .User.StudyArm.Valid}}<span class="pill pill-info">{{.User.StudyArm.UserStudyArm}}</span>{{else}}<span class="text-base-content/30">—</span>{{end}}</td>
+          <td class="num">{{.CompliantDays}} <span class="text-base-content/40">/ {{$.WindowDays}}</span></td>
+          <td>
+            <div class="flex items-center gap-3 min-w-40">
+              <div class="bar flex-1"><span style="width:{{.ScorePercent}}%"></span></div>
+              <span class="num text-sm font-semibold text-base-content/80 w-9 text-right">{{.ScorePercent}}%</span>
             </div>
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="5" class="text-center opacity-50 py-8">Belum ada data.</td></tr>
+        <tr><td colspan="5">
+          <div class="empty">
+            <div class="empty-ic"><i data-lucide="activity-square"></i></div>
+            <div class="empty-title">Belum ada data kepatuhan</div>
+            <p class="empty-hint">Data akan muncul setelah responden mulai mencatat aktivitas harian.</p>
+          </div>
+        </td></tr>
         {{end}}
       </tbody>
     </table>

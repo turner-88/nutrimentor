@@ -1,0 +1,33 @@
+{{define "actions"}}
+<a href="/admin/groups" class="btn btn-sm btn-outline"><i data-lucide="arrow-left"></i> Kembali</a>
+{{end}}
+
+{{define "content"}}
+<div class="grid gap-4 lg:grid-cols-3">
+  <div class="lg:col-span-2 card h-fit">
+    <div class="card-header"><h3 class="card-title">{{if .IsNew}}Tambah Kelompok{{else}}Ubah Kelompok{{end}}</h3></div>
+    <form method="post" action="{{if .IsNew}}/admin/groups/new{{else}}/admin/groups/{{.G.ID}}/edit{{end}}" class="card-body gap-3">
+      <div class="field">
+        <span class="label-text">Nama kelompok</span>
+        <input type="text" name="name" value="{{.G.Name}}" placeholder="mis. Melati" class="input input-bordered input-sm" required>
+      </div>
+      <div class="field">
+        <span class="label-text">Deskripsi <span class="text-base-content/40">(opsional)</span></span>
+        <textarea name="description" placeholder="Keterangan singkat" class="textarea textarea-bordered textarea-sm" rows="3">{{.G.Description}}</textarea>
+      </div>
+      <button class="btn btn-primary btn-sm self-start"><i data-lucide="save"></i> Simpan</button>
+    </form>
+  </div>
+
+  {{if not .IsNew}}
+  <div class="card h-fit">
+    <div class="card-header"><h3 class="card-title">Aksi</h3></div>
+    <div class="card-body gap-3">
+      <form method="post" action="/admin/groups/{{.G.ID}}/delete" onsubmit="return confirm('Hapus kelompok ini? Anggota akan dilepas dari kelompok.')">
+        <button class="btn btn-sm btn-outline w-full text-error"><i data-lucide="trash-2"></i> Hapus Kelompok</button>
+      </form>
+    </div>
+  </div>
+  {{end}}
+</div>
+{{end}}

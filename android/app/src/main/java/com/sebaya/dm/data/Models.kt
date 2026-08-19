@@ -28,6 +28,7 @@ data class User(
     val pendidikan: String = "",
     val pekerjaan: String = "",
     val username: String = "",
+    val email: String = "",
     @SerialName("group_id") val groupId: Int? = null,
     @SerialName("study_arm") val studyArm: String = "",
 )
@@ -41,10 +42,36 @@ data class RegisterRequest(
     val pekerjaan: String,
     val username: String,
     val password: String,
+    val email: String = "",
 )
 
 @Serializable
 data class LoginRequest(val username: String, val password: String)
+
+@Serializable
+data class ForgotPasswordRequest(val email: String)
+
+@Serializable
+data class DeviceTokenRequest(
+    val token: String,
+    val platform: String = "android",
+)
+
+@Serializable
+data class UpdateProfileRequest(
+    @SerialName("nama_lengkap") val namaLengkap: String,
+    val usia: Int,
+    @SerialName("jenis_kelamin") val jenisKelamin: String,
+    val pendidikan: String,
+    val pekerjaan: String,
+    val email: String = "",
+)
+
+@Serializable
+data class ChangePasswordRequest(
+    @SerialName("current_password") val currentPassword: String,
+    @SerialName("new_password") val newPassword: String,
+)
 
 @Serializable
 data class PillarState(
@@ -97,12 +124,37 @@ data class GlucoseLog(
 )
 
 @Serializable
+data class MedicationLog(
+    val id: Int = 0,
+    @SerialName("log_date") val logDate: String = "",
+    @SerialName("taken_complete") val takenComplete: Boolean = false,
+    @SerialName("taken_on_time") val takenOnTime: Boolean = false,
+)
+
+@Serializable
+data class ActivityLog(
+    val id: Int = 0,
+    @SerialName("log_date") val logDate: String = "",
+    @SerialName("did_activity") val didActivity: Boolean = false,
+    @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean = false,
+)
+
+@Serializable
+data class DietLog(
+    val id: Int = 0,
+    @SerialName("log_date") val logDate: String = "",
+    @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean = false,
+    @SerialName("on_schedule") val onSchedule: Boolean = false,
+)
+
+@Serializable
 data class ArticleSummary(
     val id: Int,
     val title: String,
     val slug: String,
     val category: String = "",
     @SerialName("cover_image_path") val coverImagePath: String = "",
+    val excerpt: String = "",
 )
 
 @Serializable
@@ -112,6 +164,8 @@ data class Article(
     val slug: String,
     val category: String = "",
     @SerialName("cover_image_path") val coverImagePath: String = "",
+    @SerialName("cover_width") val coverWidth: Int = 0,
+    @SerialName("cover_height") val coverHeight: Int = 0,
     @SerialName("body_html") val bodyHtml: String = "",
 )
 

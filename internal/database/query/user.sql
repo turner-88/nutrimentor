@@ -4,13 +4,16 @@ SELECT * FROM `user` WHERE username = ? LIMIT 1;
 -- name: GetUserByID :one
 SELECT * FROM `user` WHERE id = ? LIMIT 1;
 
+-- name: GetUserByEmail :one
+SELECT * FROM `user` WHERE email = ? LIMIT 1;
+
 -- name: CreateUser :execresult
-INSERT INTO `user` (role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO `user` (role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, email)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: UpdateUserProfile :exec
 UPDATE `user`
-SET nama_lengkap = ?, usia = ?, jenis_kelamin = ?, pendidikan = ?, pekerjaan = ?
+SET nama_lengkap = ?, usia = ?, jenis_kelamin = ?, pendidikan = ?, pekerjaan = ?, email = ?
 WHERE id = ?;
 
 -- name: UpdateUserPassword :exec

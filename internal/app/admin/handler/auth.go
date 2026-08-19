@@ -4,9 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
 	"github.com/remorac/sebaya-app/internal/shared/model"
 	"github.com/remorac/sebaya-app/internal/shared/util"
 )
@@ -80,22 +78,4 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{Name: "admin_token", Value: "", Path: "/admin", MaxAge: -1})
 	http.Redirect(w, r, "/admin/login", http.StatusFound)
-}
-
-// Dashboard renders admin dashboard stats.
-func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	n := time.Now()
-	day := time.Date(n.Year(), n.Month(), n.Day(), 0, 0, 0, 0, time.Local)
-	patientCount, _ := h.store.CountPatients(ctx, db.CountPatientsParams{Search: ""})
-	groupCount, _ := h.store.CountPeerGroups(ctx)
-	activeToday, _ := h.store.CountPatientsActiveOn(ctx, db.CountPatientsActiveOnParams{Day: day})
-
-	h.render(w, r, "dashboard", map[string]any{
-		"ActiveNav":    "dashboard",
-		"Title":        "Dashboard",
-		"PatientCount": patientCount,
-		"GroupCount":   groupCount,
-		"ActiveToday":  activeToday,
-	})
 }

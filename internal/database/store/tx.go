@@ -180,3 +180,23 @@ func (s *Store) DeleteArticleTx(ctx context.Context, id int32, actorID int32) er
 		return s.auditLog(ctx, q, "education_article", id, "DELETE", map[string]any{"id": id}, actorID)
 	})
 }
+
+// --- device_token (push notifications) ---
+
+func (s *Store) UpsertDeviceTokenTx(ctx context.Context, arg db.UpsertDeviceTokenParams, actorID int32) error {
+	return s.execTx(ctx, func(q *db.Queries) error {
+		if _, err := q.UpsertDeviceToken(ctx, arg); err != nil {
+			return err
+		}
+		return s.auditLog(ctx, q, "device_token", actorID, "UPSERT", map[string]any{"platform": arg.Platform}, actorID)
+	})
+}
+
+func (s *Store) DeleteDeviceTokenTx(ctx context.Context, token string, actorID int32) error {
+	return s.execTx(ctx, func(q *db.Queries) error {
+		if err := q.DeleteDeviceToken(ctx, token); err != nil {
+			return err
+		}
+		return s.auditLog(ctx, q, "device_token", actorID, "DELETE", map[string]any{"token": "***"}, actorID)
+	})
+}

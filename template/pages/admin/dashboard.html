@@ -1,48 +1,98 @@
+{{define "actions"}}
+<a href="/admin/patients" class="btn btn-sm btn-outline"><i data-lucide="users"></i> Responden</a>
+<a href="/admin/monitoring" class="btn btn-sm btn-primary"><i data-lucide="activity-square"></i> Monitoring</a>
+{{end}}
+
 {{define "content"}}
-<div class="grid gap-4 sm:grid-cols-3">
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-lg bg-primary/10 text-primary grid place-items-center"><i data-lucide="users"></i></div>
-        <div>
-          <div class="text-3xl font-bold">{{.PatientCount}}</div>
-          <div class="text-sm opacity-60">Responden</div>
-        </div>
-      </div>
-    </div>
+<!-- Stat cards -->
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="stat-card">
+    <div class="stat-ic bg-primary/10 text-primary"><i data-lucide="users"></i></div>
+    <div><div class="stat-num">{{.PatientCount}}</div><div class="stat-lbl">Responden</div></div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-lg bg-secondary/10 text-secondary grid place-items-center"><i data-lucide="users-round"></i></div>
-        <div>
-          <div class="text-3xl font-bold">{{.GroupCount}}</div>
-          <div class="text-sm opacity-60">Kelompok Sebaya</div>
-        </div>
-      </div>
-    </div>
+  <div class="stat-card">
+    <div class="stat-ic" style="background:color-mix(in srgb,var(--color-secondary) 12%,white);color:var(--color-secondary)"><i data-lucide="users-round"></i></div>
+    <div><div class="stat-num">{{.GroupCount}}</div><div class="stat-lbl">Kelompok Sebaya</div></div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-lg bg-accent/10 text-accent grid place-items-center"><i data-lucide="calendar-check"></i></div>
-        <div>
-          <div class="text-3xl font-bold">{{.ActiveToday}}</div>
-          <div class="text-sm opacity-60">Aktif hari ini</div>
-        </div>
-      </div>
-    </div>
+  <div class="stat-card">
+    <div class="stat-ic" style="background:color-mix(in srgb,var(--color-accent) 12%,white);color:var(--color-accent)"><i data-lucide="calendar-check"></i></div>
+    <div><div class="stat-num">{{.ActiveToday}}</div><div class="stat-lbl">Aktif hari ini</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-ic bg-primary/10 text-primary"><i data-lucide="target"></i></div>
+    <div><div class="stat-num">{{.AvgAdherence}}<span class="text-lg">%</span></div><div class="stat-lbl">Rata-rata kepatuhan · {{.WindowDays}} hari</div></div>
   </div>
 </div>
 
-<div class="card bg-base-100 shadow-sm mt-6">
-  <div class="card-body">
-    <h2 class="card-title text-lg">Pintasan</h2>
-    <div class="flex flex-wrap gap-2 mt-2">
-      <a href="/admin/patients" class="btn btn-sm btn-outline"><i data-lucide="users"></i> Kelola Responden</a>
-      <a href="/admin/groups" class="btn btn-sm btn-outline"><i data-lucide="users-round"></i> Kelola Kelompok</a>
-      <a href="/admin/articles" class="btn btn-sm btn-outline"><i data-lucide="book-open"></i> Kelola Edukasi</a>
-      <a href="/admin/monitoring" class="btn btn-sm btn-outline"><i data-lucide="line-chart"></i> Monitoring</a>
+<div class="grid gap-4 mt-4 lg:grid-cols-5">
+  <!-- Left: distribution + study arm -->
+  <div class="lg:col-span-3 flex flex-col gap-4 min-w-0">
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Distribusi Kepatuhan</h2><span class="card-note">{{.WindowDays}} hari terakhir</span></div>
+      <div class="card-body gap-4">
+        {{range .Bands}}
+        <div>
+          <div class="flex items-center justify-between text-sm mb-1.5">
+            <span class="flex items-center gap-2"><span class="pill pill-{{.Tone}} w-2.5 h-2.5 p-0 border-0"></span>{{.Label}}</span>
+            <span class="num font-medium text-base-content/70">{{.Count}} · {{.Pct}}%</span>
+          </div>
+          <div class="bar"><span style="width:{{.Pct}}%"></span></div>
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Perbandingan Study Arm</h2><span class="card-note">Rata-rata skor</span></div>
+      <div class="card-body gap-4">
+        {{range .Arms}}
+        <div>
+          <div class="flex items-center justify-between text-sm mb-1.5">
+            <span class="font-medium">{{.Label}} <span class="text-base-content/50">· {{.Count}} responden</span></span>
+            <span class="num font-semibold text-primary">{{.Avg}}%</span>
+          </div>
+          <div class="bar"><span style="width:{{.Avg}}%"></span></div>
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: leaderboard + recent -->
+  <div class="lg:col-span-2 flex flex-col gap-4 min-w-0">
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Peringkat Kelompok</h2><i data-lucide="trophy" class="w-4 h-4 text-accent"></i></div>
+      <div class="card-body gap-3">
+        {{range $i, $g := .Groups}}
+        <div class="flex items-center gap-3">
+          <div class="w-6 h-6 rounded-lg grid place-items-center text-xs font-bold {{if eq $i 0}}bg-accent/15 text-accent{{else}}bg-base-200 text-base-content/50{{end}}">{{add $i 1}}</div>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-medium truncate" style="color:var(--color-ink)">{{$g.Name}}</div>
+            <div class="bar mt-1"><span style="width:{{$g.Avg}}%"></span></div>
+          </div>
+          <span class="num text-sm font-semibold text-primary">{{$g.Avg}}%</span>
+        </div>
+        {{else}}
+        <p class="text-sm text-base-content/50 py-2">Belum ada kelompok dengan data.</p>
+        {{end}}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="card-title">Aktivitas Terbaru</h2></div>
+      <div class="card-body gap-0 py-1">
+        {{range .Recent}}
+        <div class="flex items-center gap-3 py-2.5 border-b border-base-300 last:border-0">
+          <span class="pill pill-{{.Tone}} w-7 h-7 p-0 grid place-items-center"><i data-lucide="{{.Icon}}"></i></span>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm truncate" style="color:var(--color-ink)">{{.Label}}</div>
+          </div>
+          <span class="text-xs text-base-content/45 num whitespace-nowrap">{{datetime .When}}</span>
+        </div>
+        {{else}}
+        <p class="text-sm text-base-content/50 py-3">Belum ada aktivitas.</p>
+        {{end}}
+      </div>
     </div>
   </div>
 </div>

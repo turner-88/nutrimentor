@@ -1,95 +1,193 @@
-{{define "content"}}
-<a href="/admin/patients" class="btn btn-ghost btn-sm mb-4"><i data-lucide="arrow-left"></i> Kembali</a>
+{{define "actions"}}
+<a href="/admin/patients" class="btn btn-sm btn-outline"><i data-lucide="arrow-left"></i> Kembali</a>
+<button type="button" class="btn btn-sm btn-primary" onclick="editModal.showModal()"><i data-lucide="pencil"></i> Edit</button>
+<button type="button" class="btn btn-sm btn-outline" onclick="pwModal.showModal()"><i data-lucide="key-round"></i> Reset Password</button>
+<form method="post" action="/admin/patients/{{.P.ID}}/active" class="inline">
+  <input type="hidden" name="active" value="{{if .P.IsActive}}0{{else}}1{{end}}">
+  <button class="btn btn-sm btn-outline {{if .P.IsActive}}text-error{{end}}">
+    <i data-lucide="{{if .P.IsActive}}user-x{{else}}user-check{{end}}"></i>
+    {{if .P.IsActive}}Nonaktifkan{{else}}Aktifkan{{end}}
+  </button>
+</form>
+{{end}}
 
+{{define "content"}}
 <div class="grid gap-4 lg:grid-cols-3">
-  <!-- Profile + admin actions -->
-  <div class="space-y-4">
-    <div class="card bg-base-100 shadow-sm">
+  <!-- Left: profile + admin actions -->
+  <div class="flex flex-col gap-4">
+    <div class="card">
       <div class="card-body">
-        <h2 class="card-title">{{.P.NamaLengkap}}</h2>
-        <div class="text-sm space-y-1 opacity-80">
-          <div>Username: <b>{{.P.Username}}</b></div>
-          <div>Usia: {{.P.Usia}} · JK: {{.P.JenisKelamin}}</div>
-          <div>Pendidikan: {{if .P.Pendidikan}}{{.P.Pendidikan}}{{else}}—{{end}}</div>
-          <div>Pekerjaan: {{if .P.Pekerjaan}}{{.P.Pekerjaan}}{{else}}—{{end}}</div>
-          <div>Status: {{if .P.IsActive}}<span class="badge badge-success badge-sm">Aktif</span>{{else}}<span class="badge badge-ghost badge-sm">Nonaktif</span>{{end}}</div>
+        <div class="flex items-center gap-3">
+          <div class="avatar avatar-lg">{{initials .P.NamaLengkap}}</div>
+          <div class="min-w-0">
+            <h2 class="card-title text-lg truncate">{{.P.NamaLengkap}}</h2>
+            <div class="who-sub">@{{.P.Username}}</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-1">
+          {{if .P.IsActive}}<span class="pill pill-success"><span class="dot"></span>Aktif</span>{{else}}<span class="pill pill-muted">Nonaktif</span>{{end}}
+          <span class="pill">{{.P.Usia}} th</span>
+          <span class="pill">{{if eq (printf "%s" .P.JenisKelamin) "L"}}Laki-laki{{else}}Perempuan{{end}}</span>
+          {{if .P.StudyArm.Valid}}<span class="pill pill-info">{{.P.StudyArm.UserStudyArm}}</span>{{end}}
+        </div>
+        <dl class="text-sm mt-2 divide-y divide-base-300">
+          <div class="flex justify-between py-2"><dt class="text-base-content/55">Pendidikan</dt><dd class="font-medium">{{if .P.Pendidikan}}{{.P.Pendidikan}}{{else}}—{{end}}</dd></div>
+          <div class="flex justify-between py-2"><dt class="text-base-content/55">Pekerjaan</dt><dd class="font-medium">{{if .P.Pekerjaan}}{{.P.Pekerjaan}}{{else}}—{{end}}</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: adherence -->
+  <div class="lg:col-span-2 flex flex-col gap-4">
+    <!-- Signature: 30-day heatmap -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Kepatuhan {{.WindowDays}} Hari</h3>
+        <div class="text-right">
+          <div class="text-2xl font-bold font-heading text-primary leading-none num">{{.CompliantDays}}</div>
+          <div class="text-[11px] text-base-content/50">hari patuh penuh</div>
+        </div>
+      </div>
+      <div class="card-body gap-4">
+        <div class="heatmap">
+          {{range .Heatmap}}
+          <span class="heat lv{{.Level}}{{if not .HasData}} nodata{{end}}"
+                title="{{md .Date}} — {{if not .HasData}}tidak ada data{{else}}{{.Level}}/3 pilar{{if .Compliant}} · patuh penuh{{end}}{{end}}"></span>
+          {{end}}
+        </div>
+        <div class="legend">
+          <span>Pilar terpenuhi:</span>
+          <span class="scale"><i style="background:var(--color-base-200)"></i> 0</span>
+          <span class="scale"><i style="background:color-mix(in srgb,var(--color-primary) 28%,white)"></i> 1</span>
+          <span class="scale"><i style="background:color-mix(in srgb,var(--color-primary) 55%,white)"></i> 2</span>
+          <span class="scale"><i style="background:var(--color-primary)"></i> 3</span>
         </div>
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow-sm">
-      <div class="card-body">
-        <h3 class="font-semibold">Kelompok & Study Arm</h3>
-        <form method="post" action="/admin/patients/{{.P.ID}}/group" class="space-y-2 mt-1">
-          <select name="group_id" class="select select-bordered select-sm w-full">
+    <!-- Per-pillar summary -->
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Ringkasan Pilar</h3><span class="card-note">dari {{.Pillars.Days}} hari</span></div>
+      <div class="card-body gap-1">
+        <div class="pillar-row">
+          <span class="name"><span class="pillar-dot pillar-obat"></span> Konsumsi Obat</span>
+          <div class="bar"><span style="width:{{ratio .Pillars.Medication .Pillars.Days}}%"></span></div>
+          <span class="count">{{.Pillars.Medication}}/{{.Pillars.Days}}</span>
+        </div>
+        <div class="pillar-row">
+          <span class="name"><span class="pillar-dot pillar-aktivitas"></span> Aktivitas Fisik</span>
+          <div class="bar"><span style="width:{{ratio .Pillars.Activity .Pillars.Days}}%"></span></div>
+          <span class="count">{{.Pillars.Activity}}/{{.Pillars.Days}}</span>
+        </div>
+        <div class="pillar-row">
+          <span class="name"><span class="pillar-dot pillar-diet"></span> Diet</span>
+          <div class="bar"><span style="width:{{ratio .Pillars.Diet .Pillars.Days}}%"></span></div>
+          <span class="count">{{.Pillars.Diet}}/{{.Pillars.Days}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Glucose -->
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><span class="pillar-dot pillar-gula align-middle mr-1"></span> Gula Darah</h3><span class="card-note">30 hari terakhir</span></div>
+      <div class="table-wrap">
+        <table class="table table-sm">
+          <thead><tr><th>Waktu</th><th>Timing</th><th class="num">mg/dL</th></tr></thead>
+          <tbody>
+            {{range .Glucose}}<tr><td class="num">{{datetime .MeasuredAt}}</td><td>{{timing .Timing}}</td><td class="num font-medium">{{.ValueMgdl}}</td></tr>
+            {{else}}<tr><td colspan="3"><div class="empty py-8"><div class="empty-ic"><i data-lucide="droplet"></i></div><div class="empty-title">Belum ada data</div></div></td></tr>{{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<dialog id="editModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Responden</h3>
+      <button type="button" class="modal-close" onclick="editModal.close()"><i data-lucide="x"></i></button>
+    </div>
+    <form method="post" action="/admin/patients/{{.P.ID}}/edit">
+      <div class="modal-body">
+        <div class="field">
+          <span class="label-text">Nama Lengkap</span>
+          <input type="text" name="nama_lengkap" value="{{.P.NamaLengkap}}" class="input input-bordered input-sm" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="field">
+            <span class="label-text">Usia</span>
+            <input type="number" name="usia" value="{{.P.Usia}}" min="0" class="input input-bordered input-sm">
+          </div>
+          <div class="field">
+            <span class="label-text">Jenis Kelamin</span>
+            {{$jk := printf "%s" .P.JenisKelamin}}
+            <div class="segmented">
+              <label><input type="radio" name="jenis_kelamin" value="L" {{if eq $jk "L"}}checked{{end}}><span>Laki-laki</span></label>
+              <label><input type="radio" name="jenis_kelamin" value="P" {{if eq $jk "P"}}checked{{end}}><span>Perempuan</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="label-text">Pendidikan</span>
+          <input type="text" name="pendidikan" value="{{.P.Pendidikan}}" class="input input-bordered input-sm">
+        </div>
+        <div class="field">
+          <span class="label-text">Pekerjaan</span>
+          <input type="text" name="pekerjaan" value="{{.P.Pekerjaan}}" class="input input-bordered input-sm">
+        </div>
+        <div class="field">
+          <span class="label-text">Email</span>
+          <input type="email" name="email" value="{{if .P.Email.Valid}}{{.P.Email.String}}{{end}}" class="input input-bordered input-sm">
+        </div>
+        <div class="field">
+          <span class="label-text">Kelompok Sebaya</span>
+          <select name="group_id" class="select select-bordered select-sm">
             <option value="0">— Tanpa kelompok —</option>
             {{$pg := .P.GroupID}}
             {{range .Groups}}<option value="{{.ID}}" {{if and $pg.Valid (eq $pg.Int32 .ID)}}selected{{end}}>{{.Name}}</option>{{end}}
           </select>
-          <select name="study_arm" class="select select-bordered select-sm w-full">
-            <option value="">— Study arm —</option>
-            <option value="intervensi" {{if and .P.StudyArm.Valid (eq (printf "%s" .P.StudyArm.UserStudyArm) "intervensi")}}selected{{end}}>Intervensi</option>
-            <option value="kontrol" {{if and .P.StudyArm.Valid (eq (printf "%s" .P.StudyArm.UserStudyArm) "kontrol")}}selected{{end}}>Kontrol</option>
-          </select>
-          <button class="btn btn-primary btn-sm w-full">Simpan</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="card bg-base-100 shadow-sm">
-      <div class="card-body">
-        <h3 class="font-semibold">Aksi</h3>
-        <form method="post" action="/admin/patients/{{.P.ID}}/password" class="flex gap-2 mt-1">
-          <input type="password" name="password" placeholder="Password baru" class="input input-bordered input-sm grow" required>
-          <button class="btn btn-sm">Reset</button>
-        </form>
-        <form method="post" action="/admin/patients/{{.P.ID}}/active" class="mt-2">
-          <input type="hidden" name="active" value="{{if .P.IsActive}}0{{else}}1{{end}}">
-          <button class="btn btn-sm btn-outline w-full">{{if .P.IsActive}}Nonaktifkan{{else}}Aktifkan{{end}} Akun</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Logs -->
-  <div class="lg:col-span-2 space-y-4">
-    <div class="stats bg-base-100 shadow-sm w-full">
-      <div class="stat">
-        <div class="stat-title">Hari patuh (30 hari)</div>
-        <div class="stat-value text-primary">{{.CompliantDays}}</div>
-        <div class="stat-desc">Semua pilar terpenuhi</div>
-      </div>
-    </div>
-
-    <div class="card bg-base-100 shadow-sm">
-      <div class="card-body">
-        <h3 class="font-semibold mb-2">Gula Darah (30 hari terakhir)</h3>
-        <div class="overflow-x-auto">
-          <table class="table table-sm">
-            <thead><tr><th>Waktu</th><th>Timing</th><th>mg/dL</th></tr></thead>
-            <tbody>
-              {{range .Glucose}}<tr><td>{{datetime .MeasuredAt}}</td><td>{{.Timing}}</td><td class="font-medium">{{.ValueMgdl}}</td></tr>
-              {{else}}<tr><td colspan="3" class="text-center opacity-50 py-4">Belum ada data.</td></tr>{{end}}
-            </tbody>
-          </table>
+        </div>
+        <div class="field">
+          <span class="label-text">Study Arm</span>
+          {{$arm := ""}}{{if .P.StudyArm.Valid}}{{$arm = printf "%s" .P.StudyArm.UserStudyArm}}{{end}}
+          <div class="segmented">
+            <label><input type="radio" name="study_arm" value="" {{if eq $arm ""}}checked{{end}}><span>Tanpa</span></label>
+            <label><input type="radio" name="study_arm" value="intervensi" {{if eq $arm "intervensi"}}checked{{end}}><span>Intervensi</span></label>
+            <label><input type="radio" name="study_arm" value="kontrol" {{if eq $arm "kontrol"}}checked{{end}}><span>Kontrol</span></label>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
-        <h4 class="font-semibold text-sm mb-1">Konsumsi Obat</h4>
-        <ul class="text-xs space-y-1">{{range .Medication}}<li>{{ymd .LogDate}} · {{if .TakenComplete}}✅{{else}}❌{{end}} lengkap · {{if .TakenOnTime}}✅{{else}}❌{{end}} tepat</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
-      </div></div>
-      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
-        <h4 class="font-semibold text-sm mb-1">Aktivitas Fisik</h4>
-        <ul class="text-xs space-y-1">{{range .Activity}}<li>{{ymd .LogDate}} · {{if .DidActivity}}✅{{else}}❌{{end}} · {{if .PerDoctorAdvice}}sesuai{{else}}tidak{{end}}</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
-      </div></div>
-      <div class="card bg-base-100 shadow-sm"><div class="card-body p-4">
-        <h4 class="font-semibold text-sm mb-1">Diet</h4>
-        <ul class="text-xs space-y-1">{{range .Diet}}<li>{{ymd .LogDate}} · {{if .PerDoctorAdvice}}sesuai{{else}}tidak{{end}} · {{if .OnSchedule}}jadwal{{else}}tdk jadwal{{end}}</li>{{else}}<li class="opacity-50">—</li>{{end}}</ul>
-      </div></div>
-    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-outline" onclick="editModal.close()">Batal</button>
+        <button class="btn btn-sm btn-primary"><i data-lucide="save"></i> Simpan</button>
+      </div>
+    </form>
   </div>
-</div>
+</dialog>
+
+<!-- Reset password modal -->
+<dialog id="pwModal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Reset Password</h3>
+      <button type="button" class="modal-close" onclick="pwModal.close()"><i data-lucide="x"></i></button>
+    </div>
+    <form method="post" action="/admin/patients/{{.P.ID}}/password">
+      <div class="modal-body">
+        <div class="field">
+          <span class="label-text">Password Baru</span>
+          <input type="password" name="password" placeholder="Password baru" class="input input-bordered input-sm" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-outline" onclick="pwModal.close()">Batal</button>
+        <button class="btn btn-sm btn-primary"><i data-lucide="key-round"></i> Reset</button>
+      </div>
+    </form>
+  </div>
+</dialog>
 {{end}}

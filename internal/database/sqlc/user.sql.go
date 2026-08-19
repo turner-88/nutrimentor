@@ -63,8 +63,8 @@ func (q *Queries) CountPatientsActiveOn(ctx context.Context, arg CountPatientsAc
 }
 
 const createUser = `-- name: CreateUser :execresult
-INSERT INTO ` + "`" + `user` + "`" + ` (role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO ` + "`" + `user` + "`" + ` (role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, email)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateUserParams struct {
@@ -78,6 +78,7 @@ type CreateUserParams struct {
 	PasswordHash string           `json:"password_hash"`
 	GroupID      sql.NullInt32    `json:"group_id"`
 	StudyArm     NullUserStudyArm `json:"study_arm"`
+	Email        sql.NullString   `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
@@ -92,6 +93,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 		arg.PasswordHash,
 		arg.GroupID,
 		arg.StudyArm,
+		arg.Email,
 	)
 }
 
@@ -104,8 +106,35 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at, email FROM ` + "`" + `user` + "`" + ` WHERE email = ? LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Role,
+		&i.NamaLengkap,
+		&i.Usia,
+		&i.JenisKelamin,
+		&i.Pendidikan,
+		&i.Pekerjaan,
+		&i.Username,
+		&i.PasswordHash,
+		&i.GroupID,
+		&i.StudyArm,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at FROM ` + "`" + `user` + "`" + ` WHERE id = ? LIMIT 1
+SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at, email FROM ` + "`" + `user` + "`" + ` WHERE id = ? LIMIT 1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
@@ -126,12 +155,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Email,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at FROM ` + "`" + `user` + "`" + ` WHERE username = ? LIMIT 1
+SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at, email FROM ` + "`" + `user` + "`" + ` WHERE username = ? LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -152,12 +182,13 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Email,
 	)
 	return i, err
 }
 
 const listPatients = `-- name: ListPatients :many
-SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at FROM ` + "`" + `user` + "`" + `
+SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at, email FROM ` + "`" + `user` + "`" + `
 WHERE role = 'patient'
   AND (? = '' OR nama_lengkap LIKE CONCAT('%', ?, '%') OR username LIKE CONCAT('%', ?, '%'))
 ORDER BY id DESC
@@ -200,6 +231,7 @@ func (q *Queries) ListPatients(ctx context.Context, arg ListPatientsParams) ([]U
 			&i.IsActive,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Email,
 		); err != nil {
 			return nil, err
 		}
@@ -215,7 +247,7 @@ func (q *Queries) ListPatients(ctx context.Context, arg ListPatientsParams) ([]U
 }
 
 const listPatientsByGroup = `-- name: ListPatientsByGroup :many
-SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at FROM ` + "`" + `user` + "`" + ` WHERE role = 'patient' AND group_id = ? ORDER BY nama_lengkap ASC
+SELECT id, role, nama_lengkap, usia, jenis_kelamin, pendidikan, pekerjaan, username, password_hash, group_id, study_arm, is_active, created_at, updated_at, email FROM ` + "`" + `user` + "`" + ` WHERE role = 'patient' AND group_id = ? ORDER BY nama_lengkap ASC
 `
 
 func (q *Queries) ListPatientsByGroup(ctx context.Context, groupID sql.NullInt32) ([]User, error) {
@@ -242,6 +274,7 @@ func (q *Queries) ListPatientsByGroup(ctx context.Context, groupID sql.NullInt32
 			&i.IsActive,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Email,
 		); err != nil {
 			return nil, err
 		}
@@ -286,7 +319,7 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPassword
 
 const updateUserProfile = `-- name: UpdateUserProfile :exec
 UPDATE ` + "`" + `user` + "`" + `
-SET nama_lengkap = ?, usia = ?, jenis_kelamin = ?, pendidikan = ?, pekerjaan = ?
+SET nama_lengkap = ?, usia = ?, jenis_kelamin = ?, pendidikan = ?, pekerjaan = ?, email = ?
 WHERE id = ?
 `
 
@@ -296,6 +329,7 @@ type UpdateUserProfileParams struct {
 	JenisKelamin UserJenisKelamin `json:"jenis_kelamin"`
 	Pendidikan   string           `json:"pendidikan"`
 	Pekerjaan    string           `json:"pekerjaan"`
+	Email        sql.NullString   `json:"email"`
 	ID           int32            `json:"id"`
 }
 
@@ -306,6 +340,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 		arg.JenisKelamin,
 		arg.Pendidikan,
 		arg.Pekerjaan,
+		arg.Email,
 		arg.ID,
 	)
 	return err

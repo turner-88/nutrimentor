@@ -13,10 +13,31 @@ type Config struct {
 	Server   ServerConfig
 	JWT      JWTConfig
 	DB       DBConfig
+	SMTP     SMTPConfig
+	FCM      FCMConfig
 	Env      string
 	AppURL   string
 	AppTheme string
 	PageSize int
+
+	// Daily log-reminder push notification.
+	ReminderEnabled bool
+	ReminderTime    string // local "HH:MM"
+}
+
+// FCMConfig holds Firebase Cloud Messaging credentials. Push is enabled only
+// when CredentialsFile points at a valid service-account JSON.
+type FCMConfig struct {
+	ProjectID       string
+	CredentialsFile string
+}
+
+type SMTPConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	From     string
 }
 
 type ServerConfig struct {
@@ -63,10 +84,24 @@ func Load() *Config {
 			User:     getEnv("DB_USER", "root"),
 			Password: getEnv("DB_PASSWORD", ""),
 		},
+		SMTP: SMTPConfig{
+			Host:     getEnv("SMTP_HOST", ""),
+			Port:     getEnv("SMTP_PORT", "587"),
+			Username: getEnv("SMTP_USER", ""),
+			Password: getEnv("SMTP_PASS", ""),
+			From:     getEnv("SMTP_FROM", "SebayaDM <no-reply@sebaya.local>"),
+		},
+		FCM: FCMConfig{
+			ProjectID:       getEnv("FCM_PROJECT_ID", ""),
+			CredentialsFile: getEnv("FCM_CREDENTIALS_FILE", ""),
+		},
 		Env:      getEnv("ENV", "development"),
 		AppURL:   getEnv("APP_URL", "http://localhost:"+getEnv("SERVER_PORT", "8080")),
 		AppTheme: getEnv("APP_THEME", "emerald"),
 		PageSize: getEnvInt("APP_PAGESIZE", 15),
+
+		ReminderEnabled: getEnv("REMINDER_ENABLED", "false") == "true",
+		ReminderTime:    getEnv("REMINDER_TIME", "08:00"),
 	}
 
 	if cfg.IsProduction() {
@@ -82,8 +117,8 @@ func Load() *Config {
 	return cfg
 }
 
-func (c *Config) ServerAddr() string  { return c.Server.Host + ":" + c.Server.Port }
-func (c *Config) IsProduction() bool  { return c.Env == "production" }
+func (c *Config) ServerAddr() string { return c.Server.Host + ":" + c.Server.Port }
+func (c *Config) IsProduction() bool { return c.Env == "production" }
 
 func getEnv(key, def string) string {
 	if v := os.Getenv(key); v != "" {
