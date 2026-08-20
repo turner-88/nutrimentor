@@ -14,6 +14,7 @@ import com.sebaya.dm.data.DietRequest
 import com.sebaya.dm.data.ForgotPasswordRequest
 import com.sebaya.dm.data.GlucoseLog
 import com.sebaya.dm.data.GlucoseRequest
+import com.sebaya.dm.data.GlucoseResult
 import com.sebaya.dm.data.LeaderboardEntry
 import com.sebaya.dm.data.LoginRequest
 import com.sebaya.dm.data.MedicationLog
@@ -61,7 +62,7 @@ interface Api {
     suspend fun logDiet(@Body body: DietRequest): ApiResponse<Unit>
 
     @POST("logs/glucose")
-    suspend fun logGlucose(@Body body: GlucoseRequest): ApiResponse<Unit>
+    suspend fun logGlucose(@Body body: GlucoseRequest): ApiResponse<GlucoseResult>
 
     @GET("logs/glucose")
     suspend fun glucose(): ApiResponse<List<GlucoseLog>>
@@ -80,6 +81,9 @@ interface Api {
 
     @GET("education/{slug}")
     suspend fun article(@Path("slug") slug: String): ApiResponse<Article>
+
+    @POST("education/{slug}/read")
+    suspend fun markArticleRead(@Path("slug") slug: String): ApiResponse<Unit>
 
     @GET("leaderboard")
     suspend fun leaderboard(): ApiResponse<List<LeaderboardEntry>>

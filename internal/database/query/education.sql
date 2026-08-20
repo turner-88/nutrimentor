@@ -21,3 +21,11 @@ SELECT * FROM education_article WHERE is_published = 1 ORDER BY sort_order ASC, 
 
 -- name: ListAllArticles :many
 SELECT * FROM education_article ORDER BY sort_order ASC, id DESC;
+
+-- name: MarkArticleRead :execresult
+INSERT INTO article_read (user_id, article_id)
+VALUES (?, ?)
+ON DUPLICATE KEY UPDATE read_at = NOW();
+
+-- name: ListReadArticleIDs :many
+SELECT article_id FROM article_read WHERE user_id = ?;

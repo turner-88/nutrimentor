@@ -40,8 +40,13 @@ import com.sebaya.dm.ui.components.StatPill
 import com.sebaya.dm.ui.components.StateHost
 
 @Composable
-fun EducationScreen(vm: AppViewModel, onOpen: (String) -> Unit) {
+fun EducationScreen(vm: AppViewModel, onOpen: (String) -> Unit, onOpenSingle: (String) -> Unit) {
     LaunchedEffect(Unit) { vm.loadArticles() }
+    // With exactly one article, skip the single-card list and open it directly.
+    val state = vm.articlesState
+    LaunchedEffect(state) {
+        (state as? UiState.Success)?.data?.singleOrNull()?.let { onOpenSingle(it.slug) }
+    }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             Text("Edukasi Diabetes", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)

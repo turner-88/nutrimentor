@@ -50,7 +50,7 @@ func main() {
 	// Daily log-reminder scheduler; stops on shutdown via rootCtx.
 	rootCtx, rootCancel := context.WithCancel(context.Background())
 	defer rootCancel()
-	scheduler.StartDailyReminder(rootCtx, cfg, notifier)
+	scheduler.StartReminders(rootCtx, cfg, notifier)
 
 	r := chi.NewRouter()
 	r.Use(mw.Logger)

@@ -101,3 +101,18 @@ func (h *Handler) GetEducation(w http.ResponseWriter, r *http.Request) {
 		"body_html":        a.BodyHtml,
 	})
 }
+
+// MarkEducationRead records that the current user has read the given article.
+func (h *Handler) MarkEducationRead(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	a, err := h.store.GetArticleBySlug(r.Context(), slug)
+	if err != nil {
+		util.WriteNotFound(w, "Artikel tidak ditemukan.")
+		return
+	}
+	if err := h.store.MarkArticleReadTx(r.Context(), h.currentUser(r).ID, a.ID); err != nil {
+		util.WriteInternalError(w, "Gagal menyimpan progres membaca.")
+		return
+	}
+	util.WriteSuccess(w, "", nil)
+}

@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	db "github.com/remorac/sebaya-app/internal/database/sqlc"
 	"github.com/remorac/sebaya-app/internal/database/store"
 	"github.com/remorac/sebaya-app/internal/shared/fcm"
 )
@@ -35,19 +36,32 @@ func (n *Service) NewArticle(ctx context.Context, title, slug string) {
 	})
 }
 
-// DailyReminder notifies active patients who have not logged their medication
-// today, prompting them to record their daily logs.
-func (n *Service) DailyReminder(ctx context.Context) {
-	day := time.Now()
-	tokens, err := n.store.ListPatientTokensNeedingReminder(ctx, day)
+// DailyLogReminder notifies active patients who have not completed all of today's
+// daily logs (medication, activity, diet, or glucose), prompting them to record.
+func (n *Service) DailyLogReminder(ctx context.Context) {
+	tokens, err := n.store.ListPatientTokensNeedingDailyLog(ctx, db.ListPatientTokensNeedingDailyLogParams{Day: time.Now()})
 	if err != nil {
-		log.Printf("notify: list reminder audience: %v", err)
+		log.Printf("notify: list daily-log reminder audience: %v", err)
 		return
 	}
 	n.send(ctx, tokens,
 		"Jangan lupa mencatat hari ini",
 		"Catat pengingat obat, aktivitas, diet, dan gula darah Anda di aplikasi SebayaDM.",
 		map[string]string{"type": "reminder"})
+}
+
+// ArticleReminder notifies active patients who still have unread published
+// articles, prompting them to finish reading.
+func (n *Service) ArticleReminder(ctx context.Context) {
+	tokens, err := n.store.ListPatientTokensWithUnreadArticles(ctx)
+	if err != nil {
+		log.Printf("notify: list article-reminder audience: %v", err)
+		return
+	}
+	n.send(ctx, tokens,
+		"Masih ada artikel yang belum dibaca",
+		"Lanjutkan membaca artikel edukasi diabetes Anda di aplikasi SebayaDM.",
+		map[string]string{"type": "reminder_article"})
 }
 
 // send delivers to FCM and prunes any tokens reported as invalid.

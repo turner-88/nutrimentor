@@ -60,7 +60,7 @@ func (q *Queries) CreateGlucoseLog(ctx context.Context, arg CreateGlucoseLogPara
 }
 
 const getActivityLog = `-- name: GetActivityLog :one
-SELECT id, user_id, log_date, did_activity, per_doctor_advice, created_at, updated_at FROM activity_log WHERE user_id = ? AND log_date = ? LIMIT 1
+SELECT id, user_id, log_date, did_activity, per_doctor_advice, created_at, updated_at, exercise_days_per_week FROM activity_log WHERE user_id = ? AND log_date = ? LIMIT 1
 `
 
 type GetActivityLogParams struct {
@@ -79,12 +79,13 @@ func (q *Queries) GetActivityLog(ctx context.Context, arg GetActivityLogParams) 
 		&i.PerDoctorAdvice,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ExerciseDaysPerWeek,
 	)
 	return i, err
 }
 
 const getDietLog = `-- name: GetDietLog :one
-SELECT id, user_id, log_date, per_doctor_advice, on_schedule, created_at, updated_at FROM diet_log WHERE user_id = ? AND log_date = ? LIMIT 1
+SELECT id, user_id, log_date, per_doctor_advice, on_schedule, created_at, updated_at, limit_sugar_salt_fat FROM diet_log WHERE user_id = ? AND log_date = ? LIMIT 1
 `
 
 type GetDietLogParams struct {
@@ -103,6 +104,7 @@ func (q *Queries) GetDietLog(ctx context.Context, arg GetDietLogParams) (DietLog
 		&i.OnSchedule,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LimitSugarSaltFat,
 	)
 	return i, err
 }
@@ -132,7 +134,7 @@ func (q *Queries) GetMedicationLog(ctx context.Context, arg GetMedicationLogPara
 }
 
 const listActivityLogs = `-- name: ListActivityLogs :many
-SELECT id, user_id, log_date, did_activity, per_doctor_advice, created_at, updated_at FROM activity_log
+SELECT id, user_id, log_date, did_activity, per_doctor_advice, created_at, updated_at, exercise_days_per_week FROM activity_log
 WHERE user_id = ? AND log_date BETWEEN ? AND ?
 ORDER BY log_date DESC
 `
@@ -160,6 +162,7 @@ func (q *Queries) ListActivityLogs(ctx context.Context, arg ListActivityLogsPara
 			&i.PerDoctorAdvice,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ExerciseDaysPerWeek,
 		); err != nil {
 			return nil, err
 		}
@@ -175,7 +178,7 @@ func (q *Queries) ListActivityLogs(ctx context.Context, arg ListActivityLogsPara
 }
 
 const listDietLogs = `-- name: ListDietLogs :many
-SELECT id, user_id, log_date, per_doctor_advice, on_schedule, created_at, updated_at FROM diet_log
+SELECT id, user_id, log_date, per_doctor_advice, on_schedule, created_at, updated_at, limit_sugar_salt_fat FROM diet_log
 WHERE user_id = ? AND log_date BETWEEN ? AND ?
 ORDER BY log_date DESC
 `
@@ -203,6 +206,7 @@ func (q *Queries) ListDietLogs(ctx context.Context, arg ListDietLogsParams) ([]D
 			&i.OnSchedule,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LimitSugarSaltFat,
 		); err != nil {
 			return nil, err
 		}
@@ -303,16 +307,17 @@ func (q *Queries) ListMedicationLogs(ctx context.Context, arg ListMedicationLogs
 }
 
 const upsertActivityLog = `-- name: UpsertActivityLog :execresult
-INSERT INTO activity_log (user_id, log_date, did_activity, per_doctor_advice)
-VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE did_activity = VALUES(did_activity), per_doctor_advice = VALUES(per_doctor_advice)
+INSERT INTO activity_log (user_id, log_date, did_activity, per_doctor_advice, exercise_days_per_week)
+VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE did_activity = VALUES(did_activity), per_doctor_advice = VALUES(per_doctor_advice), exercise_days_per_week = VALUES(exercise_days_per_week)
 `
 
 type UpsertActivityLogParams struct {
-	UserID          int32     `json:"user_id"`
-	LogDate         time.Time `json:"log_date"`
-	DidActivity     bool      `json:"did_activity"`
-	PerDoctorAdvice bool      `json:"per_doctor_advice"`
+	UserID              int32     `json:"user_id"`
+	LogDate             time.Time `json:"log_date"`
+	DidActivity         bool      `json:"did_activity"`
+	PerDoctorAdvice     bool      `json:"per_doctor_advice"`
+	ExerciseDaysPerWeek int32     `json:"exercise_days_per_week"`
 }
 
 func (q *Queries) UpsertActivityLog(ctx context.Context, arg UpsertActivityLogParams) (sql.Result, error) {
@@ -321,20 +326,22 @@ func (q *Queries) UpsertActivityLog(ctx context.Context, arg UpsertActivityLogPa
 		arg.LogDate,
 		arg.DidActivity,
 		arg.PerDoctorAdvice,
+		arg.ExerciseDaysPerWeek,
 	)
 }
 
 const upsertDietLog = `-- name: UpsertDietLog :execresult
-INSERT INTO diet_log (user_id, log_date, per_doctor_advice, on_schedule)
-VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE per_doctor_advice = VALUES(per_doctor_advice), on_schedule = VALUES(on_schedule)
+INSERT INTO diet_log (user_id, log_date, per_doctor_advice, on_schedule, limit_sugar_salt_fat)
+VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE per_doctor_advice = VALUES(per_doctor_advice), on_schedule = VALUES(on_schedule), limit_sugar_salt_fat = VALUES(limit_sugar_salt_fat)
 `
 
 type UpsertDietLogParams struct {
-	UserID          int32     `json:"user_id"`
-	LogDate         time.Time `json:"log_date"`
-	PerDoctorAdvice bool      `json:"per_doctor_advice"`
-	OnSchedule      bool      `json:"on_schedule"`
+	UserID            int32     `json:"user_id"`
+	LogDate           time.Time `json:"log_date"`
+	PerDoctorAdvice   bool      `json:"per_doctor_advice"`
+	OnSchedule        bool      `json:"on_schedule"`
+	LimitSugarSaltFat bool      `json:"limit_sugar_salt_fat"`
 }
 
 func (q *Queries) UpsertDietLog(ctx context.Context, arg UpsertDietLogParams) (sql.Result, error) {
@@ -343,6 +350,7 @@ func (q *Queries) UpsertDietLog(ctx context.Context, arg UpsertDietLogParams) (s
 		arg.LogDate,
 		arg.PerDoctorAdvice,
 		arg.OnSchedule,
+		arg.LimitSugarSaltFat,
 	)
 }
 

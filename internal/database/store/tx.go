@@ -181,6 +181,16 @@ func (s *Store) DeleteArticleTx(ctx context.Context, id int32, actorID int32) er
 	})
 }
 
+// MarkArticleReadTx records that a patient has read an article (idempotent).
+func (s *Store) MarkArticleReadTx(ctx context.Context, userID, articleID int32) error {
+	return s.execTx(ctx, func(q *db.Queries) error {
+		if _, err := q.MarkArticleRead(ctx, db.MarkArticleReadParams{UserID: userID, ArticleID: articleID}); err != nil {
+			return err
+		}
+		return s.auditLog(ctx, q, "article_read", articleID, "UPSERT", map[string]any{"article_id": articleID}, userID)
+	})
+}
+
 // --- device_token (push notifications) ---
 
 func (s *Store) UpsertDeviceTokenTx(ctx context.Context, arg db.UpsertDeviceTokenParams, actorID int32) error {

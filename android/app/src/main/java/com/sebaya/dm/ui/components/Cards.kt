@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /** Consistent surface card: soft border, low elevation, large radius. */
@@ -71,7 +70,7 @@ fun PillarTile(
                 Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
             }
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(title, style = MaterialTheme.typography.titleSmall)
                 Text(
                     statusText,
                     style = MaterialTheme.typography.bodySmall,

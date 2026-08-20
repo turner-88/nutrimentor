@@ -175,7 +175,17 @@ private fun HomeShell(vm: AppViewModel, rootNav: androidx.navigation.NavControll
     ) { pad ->
         NavHost(tabNav, startDestination = "dashboard", modifier = Modifier.padding(pad).consumeWindowInsets(pad)) {
             composable("dashboard") { DashboardScreen(vm) }
-            composable("education") { EducationScreen(vm, onOpen = { slug -> tabNav.navigate("article/$slug") }) }
+            composable("education") {
+                EducationScreen(
+                    vm,
+                    onOpen = { slug -> tabNav.navigate("article/$slug") },
+                    onOpenSingle = { slug ->
+                        tabNav.navigate("article/$slug") {
+                            popUpTo("education") { inclusive = true }
+                        }
+                    },
+                )
+            }
             composable("article/{slug}") { entry ->
                 ArticleScreen(vm, slug = entry.arguments?.getString("slug").orEmpty(), onBack = { tabNav.popBackStack() })
             }

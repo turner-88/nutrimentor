@@ -166,6 +166,48 @@ func (q *Queries) ListPublishedArticles(ctx context.Context) ([]EducationArticle
 	return items, nil
 }
 
+const listReadArticleIDs = `-- name: ListReadArticleIDs :many
+SELECT article_id FROM article_read WHERE user_id = ?
+`
+
+func (q *Queries) ListReadArticleIDs(ctx context.Context, userID int32) ([]int32, error) {
+	rows, err := q.db.QueryContext(ctx, listReadArticleIDs, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var article_id int32
+		if err := rows.Scan(&article_id); err != nil {
+			return nil, err
+		}
+		items = append(items, article_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const markArticleRead = `-- name: MarkArticleRead :execresult
+INSERT INTO article_read (user_id, article_id)
+VALUES (?, ?)
+ON DUPLICATE KEY UPDATE read_at = NOW()
+`
+
+type MarkArticleReadParams struct {
+	UserID    int32 `json:"user_id"`
+	ArticleID int32 `json:"article_id"`
+}
+
+func (q *Queries) MarkArticleRead(ctx context.Context, arg MarkArticleReadParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, markArticleRead, arg.UserID, arg.ArticleID)
+}
+
 const updateArticle = `-- name: UpdateArticle :exec
 UPDATE education_article
 SET title = ?, slug = ?, category = ?, cover_image_path = ?, body_html = ?, is_published = ?, sort_order = ?

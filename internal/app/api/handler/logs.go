@@ -26,14 +26,16 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 			"taken_on_time":  med.TakenOnTime,
 		},
 		"activity": map[string]any{
-			"logged":            actOK == nil,
-			"did_activity":      act.DidActivity,
-			"per_doctor_advice": act.PerDoctorAdvice,
+			"logged":                 actOK == nil,
+			"did_activity":           act.DidActivity,
+			"per_doctor_advice":      act.PerDoctorAdvice,
+			"exercise_days_per_week": act.ExerciseDaysPerWeek,
 		},
 		"diet": map[string]any{
-			"logged":            dietOK == nil,
-			"per_doctor_advice": diet.PerDoctorAdvice,
-			"on_schedule":       diet.OnSchedule,
+			"logged":               dietOK == nil,
+			"per_doctor_advice":    diet.PerDoctorAdvice,
+			"on_schedule":          diet.OnSchedule,
+			"limit_sugar_salt_fat": diet.LimitSugarSaltFat,
 		},
 	})
 }
@@ -79,8 +81,9 @@ func (h *Handler) ListMedication(w http.ResponseWriter, r *http.Request) {
 // --- Activity ---
 
 type activityRequest struct {
-	DidActivity     bool `json:"did_activity"`
-	PerDoctorAdvice bool `json:"per_doctor_advice"`
+	DidActivity         bool  `json:"did_activity"`
+	PerDoctorAdvice     bool  `json:"per_doctor_advice"`
+	ExerciseDaysPerWeek int32 `json:"exercise_days_per_week"`
 }
 
 func (h *Handler) LogActivity(w http.ResponseWriter, r *http.Request) {
@@ -89,11 +92,18 @@ func (h *Handler) LogActivity(w http.ResponseWriter, r *http.Request) {
 		util.WriteBadRequest(w, "Format permintaan tidak valid.")
 		return
 	}
+	days := req.ExerciseDaysPerWeek
+	if days < 0 {
+		days = 0
+	} else if days > 7 {
+		days = 7
+	}
 	err := h.store.UpsertActivityLogTx(r.Context(), db.UpsertActivityLogParams{
-		UserID:          h.currentUser(r).ID,
-		LogDate:         today(),
-		DidActivity:     req.DidActivity,
-		PerDoctorAdvice: req.PerDoctorAdvice,
+		UserID:              h.currentUser(r).ID,
+		LogDate:             today(),
+		DidActivity:         req.DidActivity,
+		PerDoctorAdvice:     req.PerDoctorAdvice,
+		ExerciseDaysPerWeek: days,
 	})
 	if err != nil {
 		util.WriteInternalError(w, "Gagal menyimpan catatan.")
@@ -117,8 +127,9 @@ func (h *Handler) ListActivity(w http.ResponseWriter, r *http.Request) {
 // --- Diet ---
 
 type dietRequest struct {
-	PerDoctorAdvice bool `json:"per_doctor_advice"`
-	OnSchedule      bool `json:"on_schedule"`
+	PerDoctorAdvice   bool `json:"per_doctor_advice"`
+	OnSchedule        bool `json:"on_schedule"`
+	LimitSugarSaltFat bool `json:"limit_sugar_salt_fat"`
 }
 
 func (h *Handler) LogDiet(w http.ResponseWriter, r *http.Request) {
@@ -128,10 +139,11 @@ func (h *Handler) LogDiet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := h.store.UpsertDietLogTx(r.Context(), db.UpsertDietLogParams{
-		UserID:          h.currentUser(r).ID,
-		LogDate:         today(),
-		PerDoctorAdvice: req.PerDoctorAdvice,
-		OnSchedule:      req.OnSchedule,
+		UserID:            h.currentUser(r).ID,
+		LogDate:           today(),
+		PerDoctorAdvice:   req.PerDoctorAdvice,
+		OnSchedule:        req.OnSchedule,
+		LimitSugarSaltFat: req.LimitSugarSaltFat,
 	})
 	if err != nil {
 		util.WriteInternalError(w, "Gagal menyimpan catatan.")
@@ -183,7 +195,23 @@ func (h *Handler) LogGlucose(w http.ResponseWriter, r *http.Request) {
 		util.WriteInternalError(w, "Gagal menyimpan catatan.")
 		return
 	}
-	util.WriteSuccess(w, "Catatan gula darah tersimpan.", nil)
+	out := map[string]any{"out_of_range": false, "warning": ""}
+	if glucoseOutOfRange(timing, req.ValueMgdl) {
+		out["out_of_range"] = true
+		out["warning"] = "Gula darah Anda di luar batas normal. Kunjungi pelayanan kesehatan terdekat."
+	}
+	util.WriteSuccess(w, "Catatan gula darah tersimpan.", out)
+}
+
+// glucoseOutOfRange reports whether a reading is outside the normal range for its
+// timing: before-meal 70–130 mg/dL, after-meal 70–180 mg/dL.
+func glucoseOutOfRange(timing db.GlucoseLogTiming, value int32) bool {
+	const low = 70
+	high := int32(180)
+	if timing == db.GlucoseLogTimingBeforeMeal {
+		high = 130
+	}
+	return value < low || value > high
 }
 
 func (h *Handler) ListGlucose(w http.ResponseWriter, r *http.Request) {

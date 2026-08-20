@@ -14,30 +14,36 @@ import (
 	"github.com/remorac/sebaya-app/internal/shared/notify"
 )
 
-// StartDailyReminder launches the reminder goroutine. It is a no-op (logs once)
-// when reminders are disabled or REMINDER_TIME is malformed.
-func StartDailyReminder(ctx context.Context, cfg *config.Config, notifier *notify.Service) {
+// StartReminders launches all daily reminder goroutines. It is a no-op (logs
+// once) when reminders are disabled. Each job is skipped individually when its
+// configured time is malformed.
+func StartReminders(ctx context.Context, cfg *config.Config, notifier *notify.Service) {
 	if !cfg.ReminderEnabled {
-		log.Println("Daily reminder disabled (REMINDER_ENABLED != true)")
+		log.Println("Daily reminders disabled (REMINDER_ENABLED != true)")
 		return
 	}
-	hh, mm, ok := parseHM(cfg.ReminderTime)
-	if !ok {
-		log.Printf("Daily reminder disabled: invalid REMINDER_TIME %q (want HH:MM)", cfg.ReminderTime)
-		return
-	}
+	scheduleDaily(ctx, "daily-log", cfg.ReminderTime, notifier.DailyLogReminder)
+	scheduleDaily(ctx, "article", cfg.ArticleReminderTime, notifier.ArticleReminder)
+}
 
-	log.Printf("Daily reminder scheduled for %02d:%02d local time", hh, mm)
+// scheduleDaily runs fn once a day at the given "HH:MM" local time until ctx is
+// cancelled. A malformed time disables just this job.
+func scheduleDaily(ctx context.Context, name, hm string, fn func(context.Context)) {
+	hh, mm, ok := parseHM(hm)
+	if !ok {
+		log.Printf("Reminder %q disabled: invalid time %q (want HH:MM)", name, hm)
+		return
+	}
+	log.Printf("Reminder %q scheduled for %02d:%02d local time", name, hh, mm)
 	go func() {
 		for {
-			d := untilNext(time.Now(), hh, mm)
-			timer := time.NewTimer(d)
+			timer := time.NewTimer(untilNext(time.Now(), hh, mm))
 			select {
 			case <-ctx.Done():
 				timer.Stop()
 				return
 			case <-timer.C:
-				notifier.DailyReminder(ctx)
+				fn(ctx)
 			}
 		}
 	}()

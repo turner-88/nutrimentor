@@ -180,13 +180,21 @@ func (ns NullUserStudyArm) Value() (driver.Value, error) {
 }
 
 type ActivityLog struct {
-	ID              int32     `json:"id"`
-	UserID          int32     `json:"user_id"`
-	LogDate         time.Time `json:"log_date"`
-	DidActivity     bool      `json:"did_activity"`
-	PerDoctorAdvice bool      `json:"per_doctor_advice"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                  int32     `json:"id"`
+	UserID              int32     `json:"user_id"`
+	LogDate             time.Time `json:"log_date"`
+	DidActivity         bool      `json:"did_activity"`
+	PerDoctorAdvice     bool      `json:"per_doctor_advice"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+	ExerciseDaysPerWeek int32     `json:"exercise_days_per_week"`
+}
+
+type ArticleRead struct {
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	ArticleID int32     `json:"article_id"`
+	ReadAt    time.Time `json:"read_at"`
 }
 
 type AuditTrail struct {
@@ -209,13 +217,14 @@ type DeviceToken struct {
 }
 
 type DietLog struct {
-	ID              int32     `json:"id"`
-	UserID          int32     `json:"user_id"`
-	LogDate         time.Time `json:"log_date"`
-	PerDoctorAdvice bool      `json:"per_doctor_advice"`
-	OnSchedule      bool      `json:"on_schedule"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                int32     `json:"id"`
+	UserID            int32     `json:"user_id"`
+	LogDate           time.Time `json:"log_date"`
+	PerDoctorAdvice   bool      `json:"per_doctor_advice"`
+	OnSchedule        bool      `json:"on_schedule"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
+	LimitSugarSaltFat bool      `json:"limit_sugar_salt_fat"`
 }
 
 type EducationArticle struct {

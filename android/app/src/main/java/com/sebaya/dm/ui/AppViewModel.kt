@@ -77,6 +77,9 @@ class AppViewModel(val repo: Repository) : ViewModel() {
     var historyState by mutableStateOf<UiState<HistoryData>>(UiState.Loading)
         private set
 
+    /** Non-null when the last glucose entry was out of range; shown as a warning. */
+    var glucoseWarning by mutableStateOf<String?>(null)
+
     // ---- Auth actions --------------------------------------------------
     fun login(username: String, password: String, onDone: () -> Unit) {
         error = null; busy = true
@@ -178,7 +181,11 @@ class AppViewModel(val repo: Repository) : ViewModel() {
         articleState = UiState.Loading
         viewModelScope.launch {
             runCatching { repo.api.article(slug).data ?: error("Artikel tidak ditemukan.") }
-                .onSuccess { articleState = UiState.Success(it) }
+                .onSuccess {
+                    articleState = UiState.Success(it)
+                    // Fire-and-forget: record reading progress for reminders.
+                    runCatching { repo.api.markArticleRead(slug) }
+                }
                 .onFailure { articleState = UiState.Error(netMessage(it)) }
         }
     }
@@ -213,17 +220,21 @@ class AppViewModel(val repo: Repository) : ViewModel() {
         repo.api.logMedication(MedicationRequest(complete, onTime))
     }
 
-    fun submitActivity(did: Boolean, perAdvice: Boolean) = mutate {
-        repo.api.logActivity(ActivityRequest(did, perAdvice))
+    fun submitActivity(did: Boolean, perAdvice: Boolean, days: Int) = mutate {
+        repo.api.logActivity(ActivityRequest(did, perAdvice, days))
     }
 
-    fun submitDiet(perAdvice: Boolean, onSchedule: Boolean) = mutate {
-        repo.api.logDiet(DietRequest(perAdvice, onSchedule))
+    fun submitDiet(perAdvice: Boolean, onSchedule: Boolean, limit: Boolean) = mutate {
+        repo.api.logDiet(DietRequest(perAdvice, onSchedule, limit))
     }
 
     fun submitGlucose(timing: String, value: Int) = mutate {
-        repo.api.logGlucose(GlucoseRequest(timing, value))
+        val res = repo.api.logGlucose(GlucoseRequest(timing, value)).data
+        glucoseWarning = res?.takeIf { it.outOfRange }?.warning?.takeIf { it.isNotBlank() }
     }
+
+    /** Dismisses the out-of-range glucose warning after the user acknowledges it. */
+    fun clearGlucoseWarning() { glucoseWarning = null }
 
     private fun mutate(block: suspend () -> Unit) {
         viewModelScope.launch {

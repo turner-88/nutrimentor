@@ -12,9 +12,9 @@ WHERE user_id = ? AND log_date BETWEEN ? AND ?
 ORDER BY log_date DESC;
 
 -- name: UpsertActivityLog :execresult
-INSERT INTO activity_log (user_id, log_date, did_activity, per_doctor_advice)
-VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE did_activity = VALUES(did_activity), per_doctor_advice = VALUES(per_doctor_advice);
+INSERT INTO activity_log (user_id, log_date, did_activity, per_doctor_advice, exercise_days_per_week)
+VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE did_activity = VALUES(did_activity), per_doctor_advice = VALUES(per_doctor_advice), exercise_days_per_week = VALUES(exercise_days_per_week);
 
 -- name: GetActivityLog :one
 SELECT * FROM activity_log WHERE user_id = ? AND log_date = ? LIMIT 1;
@@ -25,9 +25,9 @@ WHERE user_id = ? AND log_date BETWEEN ? AND ?
 ORDER BY log_date DESC;
 
 -- name: UpsertDietLog :execresult
-INSERT INTO diet_log (user_id, log_date, per_doctor_advice, on_schedule)
-VALUES (?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE per_doctor_advice = VALUES(per_doctor_advice), on_schedule = VALUES(on_schedule);
+INSERT INTO diet_log (user_id, log_date, per_doctor_advice, on_schedule, limit_sugar_salt_fat)
+VALUES (?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE per_doctor_advice = VALUES(per_doctor_advice), on_schedule = VALUES(on_schedule), limit_sugar_salt_fat = VALUES(limit_sugar_salt_fat);
 
 -- name: GetDietLog :one
 SELECT * FROM diet_log WHERE user_id = ? AND log_date = ? LIMIT 1;

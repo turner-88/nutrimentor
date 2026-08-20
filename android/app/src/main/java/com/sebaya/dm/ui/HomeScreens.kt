@@ -161,13 +161,26 @@ private fun DashboardContent(vm: AppViewModel, d: Dashboard, name: String) {
             "med" -> TwoQuestionDialog(
                 "Catatan Konsumsi Obat", "Obat sudah diminum lengkap semua?", "Apakah diminum tepat waktu?",
                 onDismiss = { dialog = null }, onSave = { a, b -> vm.submitMedication(a, b); dialog = null })
-            "act" -> TwoQuestionDialog(
-                "Catatan Aktivitas Fisik", "Sudah melakukan aktivitas fisik?", "Apakah sesuai anjuran dokter?",
-                onDismiss = { dialog = null }, onSave = { a, b -> vm.submitActivity(a, b); dialog = null })
-            "diet" -> TwoQuestionDialog(
-                "Catatan Diet", "Makanan sesuai anjuran dokter?", "Apakah makan sesuai jadwal?",
-                onDismiss = { dialog = null }, onSave = { a, b -> vm.submitDiet(a, b); dialog = null })
+            "act" -> ActivityDialog(
+                onDismiss = { dialog = null },
+                onSave = { a, b, days -> vm.submitActivity(a, b, days); dialog = null })
+            "diet" -> ThreeQuestionDialog(
+                "Catatan Diet",
+                "Makanan sesuai anjuran dokter?", "Apakah makan sesuai jadwal?",
+                "Sudah membatasi gula, garam, lemak, dan memperbanyak sayur?",
+                onDismiss = { dialog = null },
+                onSave = { a, b, c -> vm.submitDiet(a, b, c); dialog = null })
             "glu" -> GlucoseDialog(onDismiss = { dialog = null }, onSave = { t, v -> vm.submitGlucose(t, v); dialog = null })
+        }
+
+        // Out-of-range glucose alert (shown after a saved reading exceeds normal).
+        vm.glucoseWarning?.let { msg ->
+            AlertDialog(
+                onDismissRequest = { vm.clearGlucoseWarning() },
+                title = { Text("Perhatian") },
+                text = { Text(msg) },
+                confirmButton = { Button(onClick = { vm.clearGlucoseWarning() }) { Text("Mengerti") } },
+            )
         }
     }
 }
@@ -181,13 +194,14 @@ private fun medicationStatus(p: PillarState): String = when {
 
 private fun activityStatus(p: PillarState): String = when {
     !p.logged -> "Jalan, senam, atau bersepeda."
-    p.didActivity && p.perDoctorAdvice -> "Sesuai anjuran dokter"
-    p.didActivity -> "Aktivitas tercatat"
+    p.didActivity && p.perDoctorAdvice -> "Sesuai anjuran · ${p.exerciseDaysPerWeek} hari/minggu"
+    p.didActivity -> "Aktivitas tercatat · ${p.exerciseDaysPerWeek} hari/minggu"
     else -> "Tercatat"
 }
 
 private fun dietStatus(p: PillarState): String = when {
     !p.logged -> "Isi piring dengan menu seimbang."
+    p.perDoctorAdvice && p.onSchedule && p.limitSugarSaltFat -> "Sesuai anjuran · batasi gula/garam/lemak"
     p.perDoctorAdvice && p.onSchedule -> "Sesuai anjuran · tepat jadwal"
     p.perDoctorAdvice -> "Sesuai anjuran dokter"
     else -> "Tercatat"
@@ -202,7 +216,7 @@ private fun GlucoseCard(latest: GlucoseLog?, accent: Color, onClick: () -> Unit)
                 contentAlignment = Alignment.Center,
             ) { Icon(Icons.Filled.Opacity, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp)) }
             Column(Modifier.weight(1f).padding(start = 14.dp)) {
-                Text("Catatan Gula Darah", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text("Catatan Gula Darah", style = MaterialTheme.typography.titleSmall)
                 if (latest != null) {
                     Text(
                         "Terakhir: ${latest.valueMgdl} mg/dL · ${timingLabel(latest.timing)}",
@@ -247,6 +261,92 @@ private fun TwoQuestionDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
     )
+}
+
+@Composable
+private fun ThreeQuestionDialog(
+    title: String, q1: String, q2: String, q3: String,
+    onDismiss: () -> Unit, onSave: (Boolean, Boolean, Boolean) -> Unit,
+) {
+    var a by remember { mutableStateOf<Boolean?>(null) }
+    var b by remember { mutableStateOf<Boolean?>(null) }
+    var c by remember { mutableStateOf<Boolean?>(null) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column {
+                YesNo(q1, a) { a = it }
+                Spacer(Modifier.height(14.dp))
+                YesNo(q2, b) { b = it }
+                Spacer(Modifier.height(14.dp))
+                YesNo(q3, c) { c = it }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(a == true, b == true, c == true) },
+                enabled = a != null && b != null && c != null,
+            ) { Text("Simpan") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
+    )
+}
+
+@Composable
+private fun ActivityDialog(
+    onDismiss: () -> Unit, onSave: (Boolean, Boolean, Int) -> Unit,
+) {
+    var a by remember { mutableStateOf<Boolean?>(null) }
+    var b by remember { mutableStateOf<Boolean?>(null) }
+    var days by remember { mutableStateOf<Int?>(null) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Catatan Aktivitas Fisik") },
+        text = {
+            Column {
+                YesNo("Sudah melakukan aktivitas fisik?", a) { a = it }
+                Spacer(Modifier.height(14.dp))
+                YesNo("Apakah sesuai anjuran dokter?", b) { b = it }
+                Spacer(Modifier.height(14.dp))
+                DayStepper(
+                    "Dalam seminggu terakhir, berapa hari aktivitas fisik sedang (min 30 menit/hari)?",
+                    days,
+                ) { days = it }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(a == true, b == true, days ?: 0) },
+                enabled = a != null && b != null && days != null,
+            ) { Text("Simpan") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } },
+    )
+}
+
+/** A 0–7 day selector with -/+ controls; null until the user picks a value. */
+@Composable
+private fun DayStepper(question: String, value: Int?, onChange: (Int) -> Unit) {
+    Column {
+        Text(question, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(
+                onClick = { onChange((value ?: 0).minus(1).coerceAtLeast(0)) },
+                enabled = (value ?: 0) > 0,
+            ) { Text("−") }
+            Text(
+                value?.let { "$it hari" } ?: "— hari",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            OutlinedButton(
+                onClick = { onChange((value ?: 0).plus(1).coerceAtMost(7)) },
+                enabled = (value ?: 0) < 7,
+            ) { Text("+") }
+        }
+    }
 }
 
 @Composable

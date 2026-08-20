@@ -80,7 +80,9 @@ data class PillarState(
     @SerialName("taken_on_time") val takenOnTime: Boolean = false,
     @SerialName("did_activity") val didActivity: Boolean = false,
     @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean = false,
+    @SerialName("exercise_days_per_week") val exerciseDaysPerWeek: Int = 0,
     @SerialName("on_schedule") val onSchedule: Boolean = false,
+    @SerialName("limit_sugar_salt_fat") val limitSugarSaltFat: Boolean = false,
 )
 
 @Serializable
@@ -101,18 +103,26 @@ data class MedicationRequest(
 data class ActivityRequest(
     @SerialName("did_activity") val didActivity: Boolean,
     @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean,
+    @SerialName("exercise_days_per_week") val exerciseDaysPerWeek: Int,
 )
 
 @Serializable
 data class DietRequest(
     @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean,
     @SerialName("on_schedule") val onSchedule: Boolean,
+    @SerialName("limit_sugar_salt_fat") val limitSugarSaltFat: Boolean,
 )
 
 @Serializable
 data class GlucoseRequest(
     val timing: String,
     @SerialName("value_mgdl") val valueMgdl: Int,
+)
+
+@Serializable
+data class GlucoseResult(
+    @SerialName("out_of_range") val outOfRange: Boolean = false,
+    val warning: String = "",
 )
 
 @Serializable
@@ -137,6 +147,7 @@ data class ActivityLog(
     @SerialName("log_date") val logDate: String = "",
     @SerialName("did_activity") val didActivity: Boolean = false,
     @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean = false,
+    @SerialName("exercise_days_per_week") val exerciseDaysPerWeek: Int = 0,
 )
 
 @Serializable
@@ -145,6 +156,7 @@ data class DietLog(
     @SerialName("log_date") val logDate: String = "",
     @SerialName("per_doctor_advice") val perDoctorAdvice: Boolean = false,
     @SerialName("on_schedule") val onSchedule: Boolean = false,
+    @SerialName("limit_sugar_salt_fat") val limitSugarSaltFat: Boolean = false,
 )
 
 @Serializable

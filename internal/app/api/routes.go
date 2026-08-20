@@ -43,6 +43,9 @@ func Routes(cfg *config.Config, s *store.Store) chi.Router {
 		r.Post("/logs/glucose", h.LogGlucose)
 		r.Get("/logs/glucose", h.ListGlucose)
 
+		// Mark an education article as read (progress tracking).
+		r.Post("/education/{slug}/read", h.MarkEducationRead)
+
 		r.Get("/leaderboard", h.Leaderboard)
 
 		// Push notification device-token registration.

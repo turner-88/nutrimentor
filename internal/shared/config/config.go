@@ -20,9 +20,10 @@ type Config struct {
 	AppTheme string
 	PageSize int
 
-	// Daily log-reminder push notification.
-	ReminderEnabled bool
-	ReminderTime    string // local "HH:MM"
+	// Daily reminder push notifications (gated by ReminderEnabled), local "HH:MM".
+	ReminderEnabled     bool
+	ReminderTime        string // combined daily-log reminder (obat, aktivitas, diet, gula darah)
+	ArticleReminderTime string // unread-article reminder
 }
 
 // FCMConfig holds Firebase Cloud Messaging credentials. Push is enabled only
@@ -100,8 +101,9 @@ func Load() *Config {
 		AppTheme: getEnv("APP_THEME", "emerald"),
 		PageSize: getEnvInt("APP_PAGESIZE", 15),
 
-		ReminderEnabled: getEnv("REMINDER_ENABLED", "false") == "true",
-		ReminderTime:    getEnv("REMINDER_TIME", "08:00"),
+		ReminderEnabled:     getEnv("REMINDER_ENABLED", "false") == "true",
+		ReminderTime:        getEnv("REMINDER_TIME", "17:00"),
+		ArticleReminderTime: getEnv("ARTICLE_REMINDER_TIME", "08:00"),
 	}
 
 	if cfg.IsProduction() {

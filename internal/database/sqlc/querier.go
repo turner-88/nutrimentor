@@ -7,7 +7,6 @@ package sqlc
 import (
 	"context"
 	"database/sql"
-	"time"
 )
 
 type Querier interface {
@@ -45,11 +44,16 @@ type Querier interface {
 	ListDietLogs(ctx context.Context, arg ListDietLogsParams) ([]DietLog, error)
 	ListGlucoseLogs(ctx context.Context, arg ListGlucoseLogsParams) ([]GlucoseLog, error)
 	ListMedicationLogs(ctx context.Context, arg ListMedicationLogsParams) ([]MedicationLog, error)
-	ListPatientTokensNeedingReminder(ctx context.Context, day time.Time) ([]string, error)
+	// Patients missing any of today's daily logs: medication, activity, diet, or glucose.
+	ListPatientTokensNeedingDailyLog(ctx context.Context, arg ListPatientTokensNeedingDailyLogParams) ([]string, error)
+	// Patients who have at least one published article they have not yet read.
+	ListPatientTokensWithUnreadArticles(ctx context.Context) ([]string, error)
 	ListPatients(ctx context.Context, arg ListPatientsParams) ([]User, error)
 	ListPatientsByGroup(ctx context.Context, groupID sql.NullInt32) ([]User, error)
 	ListPeerGroups(ctx context.Context) ([]PeerGroup, error)
 	ListPublishedArticles(ctx context.Context) ([]EducationArticle, error)
+	ListReadArticleIDs(ctx context.Context, userID int32) ([]int32, error)
+	MarkArticleRead(ctx context.Context, arg MarkArticleReadParams) (sql.Result, error)
 	MarkResetTokenUsed(ctx context.Context, id int32) error
 	SetUserActive(ctx context.Context, arg SetUserActiveParams) error
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) error
