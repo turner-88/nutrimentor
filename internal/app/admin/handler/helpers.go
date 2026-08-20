@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -17,4 +18,16 @@ func slugify(s string) string {
 	s = strings.ToLower(strings.TrimSpace(s))
 	s = slugRe.ReplaceAllString(s, "-")
 	return strings.Trim(s, "-")
+}
+
+// uniqueSlug returns base, or base-2 / base-3 / … if base is already taken.
+func uniqueSlug(base string, taken map[string]bool) string {
+	if base == "" {
+		base = "artikel"
+	}
+	s := base
+	for i := 2; taken[s]; i++ {
+		s = fmt.Sprintf("%s-%d", base, i)
+	}
+	return s
 }

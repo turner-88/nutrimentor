@@ -79,10 +79,18 @@ func (h *Handler) SaveArticle(w http.ResponseWriter, r *http.Request) {
 	id := atoi32(chi.URLParam(r, "id"))
 
 	title := strings.TrimSpace(r.FormValue("title"))
-	slug := strings.TrimSpace(r.FormValue("slug"))
-	if slug == "" {
-		slug = slugify(title)
+	slug := slugify(title)
+
+	// Ensure slug uniqueness (the column is UNIQUE and admins can no longer set it manually).
+	existing, _ := h.store.ListAllArticles(r.Context())
+	taken := make(map[string]bool, len(existing))
+	for _, a := range existing {
+		if a.ID == id { // exclude self on edit so an unchanged title keeps its slug
+			continue
+		}
+		taken[a.Slug] = true
 	}
+	slug = uniqueSlug(slug, taken)
 	published := r.FormValue("is_published") == "on" || r.FormValue("is_published") == "1"
 	sortOrder := atoi32(r.FormValue("sort_order"))
 
