@@ -5,19 +5,19 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".SebayaApp"
+        android:name=".NutriMentorApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:label="SebayaDM"
+        android:label="NutriMentor"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.SebayaDM">
+        android:theme="@style/Theme.NutriMentor">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="SebayaDM"
-            android:theme="@style/Theme.SebayaDM">
+            android:label="NutriMentor"
+            android:theme="@style/Theme.NutriMentor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -25,7 +25,7 @@
         </activity>
 
         <service
-            android:name=".messaging.SebayaMessagingService"
+            android:name=".messaging.NutriMentorMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -38,6 +38,6 @@
             android:resource="@drawable/ic_notification" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sebaya_default" />
+            android:value="nutrimentor_default" />
     </application>
 </manifest>

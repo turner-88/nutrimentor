@@ -13,16 +13,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 
-	assets "github.com/remorac/sebaya-app"
-	"github.com/remorac/sebaya-app/internal/app/admin"
-	"github.com/remorac/sebaya-app/internal/app/api"
-	"github.com/remorac/sebaya-app/internal/database"
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	"github.com/remorac/sebaya-app/internal/shared/fcm"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/notify"
-	"github.com/remorac/sebaya-app/internal/shared/scheduler"
+	assets "github.com/remorac/nutrimentor-app"
+	"github.com/remorac/nutrimentor-app/internal/app/admin"
+	"github.com/remorac/nutrimentor-app/internal/app/api"
+	"github.com/remorac/nutrimentor-app/internal/database"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	"github.com/remorac/nutrimentor-app/internal/shared/fcm"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/notify"
+	"github.com/remorac/nutrimentor-app/internal/shared/scheduler"
 )
 
 func main() {

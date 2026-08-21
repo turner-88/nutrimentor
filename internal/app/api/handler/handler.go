@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	"github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/model"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	"github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 // Handler holds dependencies for the JSON API consumed by the Android app.

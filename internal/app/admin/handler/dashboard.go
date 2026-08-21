@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
 )
 
 // adherenceBand is one bucket of the compliance-score distribution.

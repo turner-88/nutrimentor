@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
 )
 
 // monitorWindowDays is the rolling adherence window used by monitoring/exports.
@@ -61,7 +61,7 @@ func (h *Handler) Monitoring(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ExportCSV(w http.ResponseWriter, r *http.Request) {
 	rows := h.buildAdherence(r)
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=\"sebaya_adherence_"+time.Now().Format("20060102")+".csv\"")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"nutrimentor_adherence_"+time.Now().Format("20060102")+".csv\"")
 
 	cw := csv.NewWriter(w)
 	defer cw.Flush()

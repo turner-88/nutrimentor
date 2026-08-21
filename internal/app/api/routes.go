@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/go-chi/chi/v5"
 
-	"github.com/remorac/sebaya-app/internal/app/api/handler"
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/app/api/handler"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
 )
 
 // Routes returns the JSON API subsystem router (consumed by the Android app).

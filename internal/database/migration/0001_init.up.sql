@@ -1,4 +1,4 @@
--- SebayaDM initial schema (MariaDB, utf8mb4).
+-- NutriMentor initial schema (MariaDB, utf8mb4).
 
 CREATE TABLE peer_group (
     id          INT AUTO_INCREMENT PRIMARY KEY,

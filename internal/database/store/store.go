@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
 )
 
 // Store wraps sqlc.Queries and adds transactional mutations that also write an

@@ -3,12 +3,12 @@ package admin
 import (
 	"github.com/go-chi/chi/v5"
 
-	"github.com/remorac/sebaya-app/internal/app/admin/handler"
-	adminMW "github.com/remorac/sebaya-app/internal/app/admin/middleware"
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/notify"
+	"github.com/remorac/nutrimentor-app/internal/app/admin/handler"
+	adminMW "github.com/remorac/nutrimentor-app/internal/app/admin/middleware"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/notify"
 )
 
 // Routes returns the admin panel subsystem router.

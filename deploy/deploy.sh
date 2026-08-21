@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# Repeatable production deploy for the SebayaDM backend. Run on the server as the
-# `sebaya` user (or via `sudo -u sebaya`) after deploy/setup.sh has provisioned
+# Repeatable production deploy for the NutriMentor backend. Run on the server as the
+# `nutrimentor` user (or via `sudo -u nutrimentor`) after deploy/setup.sh has provisioned
 # the host. Idempotent: pulls latest, rebuilds, migrates, restarts, health-checks.
 #
-#   cd /opt/sebaya/app && ./deploy/deploy.sh
+#   cd /opt/nutrimentor/app && ./deploy/deploy.sh
 #
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/opt/sebaya/app}"
-SERVICE="${SERVICE:-sebaya}"
-HEALTH_URL="${HEALTH_URL:-https://sebayadm.remorac.com/api/education}"
+APP_DIR="${APP_DIR:-/opt/nutrimentor/app}"
+SERVICE="${SERVICE:-nutrimentor}"
+HEALTH_URL="${HEALTH_URL:-https://nutrimentor.remorac.com/api/education}"
 
 # Use sudo for privileged systemctl/journalctl calls unless already root.
 SUDO=""

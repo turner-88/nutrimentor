@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
 )
 
 // ListAudit renders the most recent audit-trail entries.

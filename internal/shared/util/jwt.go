@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/remorac/sebaya-app/internal/shared/model"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
 )
 
 var (

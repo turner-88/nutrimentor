@@ -81,7 +81,7 @@ func Load() *Config {
 		DB: DBConfig{
 			Host:     getEnv("DB_HOST", "127.0.0.1"),
 			Port:     getEnv("DB_PORT", "3306"),
-			Name:     getEnv("DB_NAME", "sebaya"),
+			Name:     getEnv("DB_NAME", "nutrimentor"),
 			User:     getEnv("DB_USER", "root"),
 			Password: getEnv("DB_PASSWORD", ""),
 		},
@@ -90,7 +90,7 @@ func Load() *Config {
 			Port:     getEnv("SMTP_PORT", "587"),
 			Username: getEnv("SMTP_USER", ""),
 			Password: getEnv("SMTP_PASS", ""),
-			From:     getEnv("SMTP_FROM", "SebayaDM <no-reply@sebaya.local>"),
+			From:     getEnv("SMTP_FROM", "NutriMentor <no-reply@nutrimentor.local>"),
 		},
 		FCM: FCMConfig{
 			ProjectID:       getEnv("FCM_PROJECT_ID", ""),

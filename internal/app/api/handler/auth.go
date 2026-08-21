@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	"github.com/remorac/sebaya-app/internal/shared/model"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 type registerRequest struct {
@@ -329,11 +329,11 @@ func (h *Handler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 
 	link := fmt.Sprintf("%s/admin/reset-password?token=%s", strings.TrimRight(h.config.AppURL, "/"), raw)
 	body := fmt.Sprintf(
-		"Halo %s,\n\nKami menerima permintaan untuk mereset password akun SebayaDM Anda.\n"+
+		"Halo %s,\n\nKami menerima permintaan untuk mereset password akun NutriMentor Anda.\n"+
 			"Klik tautan berikut untuk membuat password baru (berlaku 1 jam):\n\n%s\n\n"+
-			"Jika Anda tidak meminta reset password, abaikan email ini.\n\nSalam,\nTim SebayaDM",
+			"Jika Anda tidak meminta reset password, abaikan email ini.\n\nSalam,\nTim NutriMentor",
 		u.NamaLengkap, link)
-	if err := util.SendMail(h.config.SMTP, u.Email.String, "Reset Password SebayaDM", body); err != nil {
+	if err := util.SendMail(h.config.SMTP, u.Email.String, "Reset Password NutriMentor", body); err != nil {
 		util.WriteInternalError(w, "Gagal mengirim email.")
 		return
 	}

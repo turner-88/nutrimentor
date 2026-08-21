@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
 )
 
 // ListGroups renders peer groups with member counts.

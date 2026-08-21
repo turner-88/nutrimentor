@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/remorac/sebaya-app/internal/shared/model"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 // LoginPage renders the admin login form.
@@ -17,7 +17,7 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	h.renderGuest(w, "login", map[string]any{"Title": "Admin Login — SebayaDM"})
+	h.renderGuest(w, "login", map[string]any{"Title": "Admin Login — NutriMentor"})
 }
 
 // Login processes the admin login form.
@@ -32,7 +32,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	fail := func(msg string) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		h.renderGuest(w, "login", map[string]any{
-			"Title": "Admin Login — SebayaDM", "Error": msg, "Username": username,
+			"Title": "Admin Login — NutriMentor", "Error": msg, "Username": username,
 		})
 	}
 

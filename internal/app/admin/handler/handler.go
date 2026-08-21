@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	assets "github.com/remorac/sebaya-app"
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/notify"
+	assets "github.com/remorac/nutrimentor-app"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/notify"
 )
 
 // Handler holds dependencies and pre-parsed templates for the admin panel.

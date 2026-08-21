@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# One-time provisioning for a SebayaDM production host (Ubuntu/Debian).
+# One-time provisioning for a NutriMentor production host (Ubuntu/Debian).
 # Installs prerequisites, creates the service user + app checkout, wires up
 # systemd + nginx + a Let's Encrypt cert, and runs the first deploy.
 #
@@ -14,13 +14,13 @@
 set -euo pipefail
 
 # ------------------------------------------------------------------ config ----
-DOMAIN="${DOMAIN:-sebayadm.remorac.com}"
-APP_USER="${APP_USER:-sebaya}"
-APP_DIR="${APP_DIR:-/opt/sebaya/app}"
-REPO_URL="${REPO_URL:-https://github.com/remorac/sebaya-app.git}"
+DOMAIN="${DOMAIN:-nutrimentor.remorac.com}"
+APP_USER="${APP_USER:-nutrimentor}"
+APP_DIR="${APP_DIR:-/opt/nutrimentor/app}"
+REPO_URL="${REPO_URL:-https://github.com/remorac/nutrimentor-app.git}"
 GO_VERSION="${GO_VERSION:-1.25.1}"
-DB_NAME="${DB_NAME:-sebaya}"
-DB_USER="${DB_USER:-sebaya}"
+DB_NAME="${DB_NAME:-nutrimentor}"
+DB_USER="${DB_USER:-nutrimentor}"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"   # optional; used for cert expiry notices
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -114,22 +114,22 @@ fi
 
 # ------------------------------------------------------------------ systemd ---
 echo "==> Installing systemd unit"
-install -m 0644 "$REPO_ROOT/deploy/sebaya.service" /etc/systemd/system/sebaya.service
+install -m 0644 "$REPO_ROOT/deploy/nutrimentor.service" /etc/systemd/system/nutrimentor.service
 systemctl daemon-reload
-systemctl enable sebaya
+systemctl enable nutrimentor
 
 # Allow the service user to restart/inspect the service (used by deploy.sh).
 SYSTEMCTL="$(command -v systemctl)"
 JOURNALCTL="$(command -v journalctl)"
-cat > /etc/sudoers.d/sebaya <<SUDOERS
-${APP_USER} ALL=(root) NOPASSWD: ${SYSTEMCTL} restart sebaya, ${SYSTEMCTL} status sebaya, ${JOURNALCTL} -u sebaya *
+cat > /etc/sudoers.d/nutrimentor <<SUDOERS
+${APP_USER} ALL=(root) NOPASSWD: ${SYSTEMCTL} restart nutrimentor, ${SYSTEMCTL} status nutrimentor, ${JOURNALCTL} -u nutrimentor *
 SUDOERS
-chmod 0440 /etc/sudoers.d/sebaya
-visudo -cf /etc/sudoers.d/sebaya
+chmod 0440 /etc/sudoers.d/nutrimentor
+visudo -cf /etc/sudoers.d/nutrimentor
 
 # -------------------------------------------------------------------- nginx ---
 echo "==> Installing nginx site"
-install -m 0644 "$REPO_ROOT/deploy/nginx/sebayadm.remorac.com.conf" \
+install -m 0644 "$REPO_ROOT/deploy/nginx/nutrimentor.remorac.com.conf" \
     "/etc/nginx/sites-available/${DOMAIN}"
 ln -sf "/etc/nginx/sites-available/${DOMAIN}" "/etc/nginx/sites-enabled/${DOMAIN}"
 nginx -t
@@ -153,5 +153,5 @@ chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 sudo -u "$APP_USER" env APP_DIR="$APP_DIR" bash "$APP_DIR/deploy/deploy.sh"
 
 echo
-echo "Provisioning complete. Service: systemctl status sebaya"
+echo "Provisioning complete. Service: systemctl status nutrimentor"
 echo "Seed an admin user, then visit https://${DOMAIN}/admin/login"

@@ -8,9 +8,9 @@ import (
 	"log"
 	"time"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	"github.com/remorac/sebaya-app/internal/database/store"
-	"github.com/remorac/sebaya-app/internal/shared/fcm"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	"github.com/remorac/nutrimentor-app/internal/database/store"
+	"github.com/remorac/nutrimentor-app/internal/shared/fcm"
 )
 
 type Service struct {
@@ -46,7 +46,7 @@ func (n *Service) DailyLogReminder(ctx context.Context) {
 	}
 	n.send(ctx, tokens,
 		"Jangan lupa mencatat hari ini",
-		"Catat pengingat obat, aktivitas, diet, dan gula darah Anda di aplikasi SebayaDM.",
+		"Catat pengingat obat, aktivitas, diet, dan gula darah Anda di aplikasi NutriMentor.",
 		map[string]string{"type": "reminder"})
 }
 
@@ -60,7 +60,7 @@ func (n *Service) ArticleReminder(ctx context.Context) {
 	}
 	n.send(ctx, tokens,
 		"Masih ada artikel yang belum dibaca",
-		"Lanjutkan membaca artikel edukasi diabetes Anda di aplikasi SebayaDM.",
+		"Lanjutkan membaca artikel edukasi diabetes Anda di aplikasi NutriMentor.",
 		map[string]string{"type": "reminder_article"})
 }
 

@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SebayaDM"
+rootProject.name = "NutriMentor"
 include(":app")

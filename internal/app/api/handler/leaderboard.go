@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"sort"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 // adherenceWindowDays is the rolling window over which the leaderboard scores

@@ -14,7 +14,7 @@ import (
 	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
 
-	"github.com/remorac/sebaya-app/internal/shared/config"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
 )
 
 // Sender wraps an FCM messaging client. A nil client means "not configured".

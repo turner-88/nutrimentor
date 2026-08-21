@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/model"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
 )
 
 // RequireAdmin ensures the authenticated user has the admin role, redirecting

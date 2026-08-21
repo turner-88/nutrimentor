@@ -10,8 +10,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/remorac/sebaya-app/internal/shared/config"
-	"github.com/remorac/sebaya-app/internal/shared/notify"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
+	"github.com/remorac/nutrimentor-app/internal/shared/notify"
 )
 
 // StartReminders launches all daily reminder goroutines. It is a no-op (logs

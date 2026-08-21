@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 type articleListItem struct {

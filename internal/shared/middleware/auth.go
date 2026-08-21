@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/remorac/sebaya-app/internal/shared/model"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	"github.com/remorac/nutrimentor-app/internal/shared/model"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 type contextKey string

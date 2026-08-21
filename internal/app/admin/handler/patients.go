@@ -10,9 +10,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	mw "github.com/remorac/sebaya-app/internal/shared/middleware"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	mw "github.com/remorac/nutrimentor-app/internal/shared/middleware"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 // ListPatients renders the paginated, searchable patient list.

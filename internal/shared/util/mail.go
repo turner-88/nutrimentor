@@ -6,7 +6,7 @@ import (
 	"net/smtp"
 	"strings"
 
-	"github.com/remorac/sebaya-app/internal/shared/config"
+	"github.com/remorac/nutrimentor-app/internal/shared/config"
 )
 
 // SendMail sends a plain-text email via SMTP. When no SMTP host is configured

@@ -18,11 +18,11 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "com.sebaya.dm"
+    namespace = "com.nutrimentor.dm"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.sebaya.dm"
+        applicationId = "com.nutrimentor.dm"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -42,7 +42,7 @@ android {
 
     buildTypes {
         debug {
-            // Base URL of the SebayaDM backend API for local development.
+            // Base URL of the NutriMentor backend API for local development.
             // Android emulator reaches the host machine at 10.0.2.2;
             // a physical device on the same Wi-Fi uses the host's LAN IP.
             // Port 8081 because a local nginx occupies 8080 on the host.
@@ -50,7 +50,7 @@ android {
         }
         release {
             // Production API, served over TLS behind nginx.
-            buildConfigField("String", "API_BASE_URL", "\"https://sebayadm.remorac.com/api/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://nutrimentor.remorac.com/api/\"")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (keystorePropsFile.exists()) {

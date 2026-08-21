@@ -1,4 +1,4 @@
-module github.com/remorac/sebaya-app
+module github.com/remorac/nutrimentor-app
 
 go 1.25.1
 

@@ -1,0 +1,30 @@
+[Unit]
+Description=NutriMentor backend (Go API + admin panel)
+Documentation=https://github.com/remorac/nutrimentor-app
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nutrimentor
+Group=nutrimentor
+WorkingDirectory=/opt/nutrimentor/app
+EnvironmentFile=/opt/nutrimentor/app/.env
+ExecStart=/opt/nutrimentor/app/bin/server
+Restart=on-failure
+RestartSec=5
+
+# Logging goes to the journal: `journalctl -u nutrimentor -f`
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nutrimentor
+
+# Hardening. The app only needs to write uploaded files under static/uploads.
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/nutrimentor/app/static/uploads
+
+[Install]
+WantedBy=multi-user.target

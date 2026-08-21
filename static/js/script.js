@@ -1,1 +1,1 @@
-// SebayaDM admin scripts
+// NutriMentor admin scripts

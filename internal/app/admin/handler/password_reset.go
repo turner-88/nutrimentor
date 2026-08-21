@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"strings"
 
-	db "github.com/remorac/sebaya-app/internal/database/sqlc"
-	"github.com/remorac/sebaya-app/internal/shared/util"
+	db "github.com/remorac/nutrimentor-app/internal/database/sqlc"
+	"github.com/remorac/nutrimentor-app/internal/shared/util"
 )
 
 // ShowResetPassword renders the public password-reset form for a valid token.
 func (h *Handler) ShowResetPassword(w http.ResponseWriter, r *http.Request) {
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
-	data := map[string]any{"Title": "Reset Password — SebayaDM", "Token": token}
+	data := map[string]any{"Title": "Reset Password — NutriMentor", "Token": token}
 	if _, err := h.store.GetValidResetToken(r.Context(), util.HashToken(token)); err != nil {
 		data["Invalid"] = true
 	}
@@ -31,14 +31,14 @@ func (h *Handler) SubmitResetPassword(w http.ResponseWriter, r *http.Request) {
 	fail := func(msg string) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		h.renderGuest(w, "reset_password", map[string]any{
-			"Title": "Reset Password — SebayaDM", "Token": token, "Error": msg,
+			"Title": "Reset Password — NutriMentor", "Token": token, "Error": msg,
 		})
 	}
 
 	prt, err := h.store.GetValidResetToken(r.Context(), util.HashToken(token))
 	if err != nil {
 		h.renderGuest(w, "reset_password", map[string]any{
-			"Title": "Reset Password — SebayaDM", "Invalid": true,
+			"Title": "Reset Password — NutriMentor", "Invalid": true,
 		})
 		return
 	}
@@ -64,6 +64,6 @@ func (h *Handler) SubmitResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.renderGuest(w, "reset_password", map[string]any{
-		"Title": "Reset Password — SebayaDM", "Success": true,
+		"Title": "Reset Password — NutriMentor", "Success": true,
 	})
 }
