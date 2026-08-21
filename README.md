@@ -80,6 +80,7 @@ targeting `https://nutrimentor.remorac.com`. Everything lives in `deploy/`:
 | `deploy/nutrimentor.service` | systemd unit (`WorkingDirectory=/opt/nutrimentor/app`, `EnvironmentFile=.env`). |
 | `deploy/nginx/nutrimentor.remorac.com.conf` | nginx reverse proxy → `127.0.0.1:8081`. |
 | `.env.production.example` | Production env template (bind to loopback, `ENV=production`). |
+| `deploy/decommission-sebayadm.sh` | One-time cleanup of the retired `sebayadm.remorac.com` host (old `sebaya` service/user/DB, nginx site, TLS cert, `/opt/sebaya`). Backs up the DB + app dir before deleting; the DNS record must be removed manually. |
 
 First-time provisioning (point the DNS A record at the server first):
 
