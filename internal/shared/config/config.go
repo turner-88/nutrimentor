@@ -76,7 +76,7 @@ func Load() *Config {
 		},
 		JWT: JWTConfig{
 			SecretKey:       getEnv("JWT_SECRET", "change-me-in-production"),
-			ExpirationHours: getEnvInt("JWT_EXPIRATION_HOURS", 72),
+			ExpirationHours: getEnvInt("JWT_EXPIRATION_HOURS", 8760),
 		},
 		DB: DBConfig{
 			Host:     getEnv("DB_HOST", "127.0.0.1"),

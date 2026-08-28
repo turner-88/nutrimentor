@@ -108,6 +108,14 @@ private fun RootNav(vm: AppViewModel) {
     val nav = rememberNavController()
     val start = if (vm.loggedIn) "home" else "login"
 
+    // When the session ends (e.g. the server rejects an expired token), fall
+    // back to login and clear the back stack so authenticated screens are gone.
+    LaunchedEffect(vm.loggedIn) {
+        if (!vm.loggedIn && nav.currentDestination?.route != "login") {
+            nav.navigate("login") { popUpTo(0) { inclusive = true } }
+        }
+    }
+
     NavHost(navController = nav, startDestination = start) {
         composable("login") {
             LoginScreen(vm,

@@ -80,6 +80,17 @@ class AppViewModel(val repo: Repository) : ViewModel() {
     /** Non-null when the last glucose entry was out of range; shown as a warning. */
     var glucoseWarning by mutableStateOf<String?>(null)
 
+    init {
+        // The network layer clears the token on a 401; mirror that into the UI
+        // so navigation falls back to the login screen.
+        viewModelScope.launch {
+            repo.sessionExpired.collect {
+                loggedIn = false
+                error = "Sesi Anda telah berakhir. Silakan login kembali."
+            }
+        }
+    }
+
     // ---- Auth actions --------------------------------------------------
     fun login(username: String, password: String, onDone: () -> Unit) {
         error = null; busy = true

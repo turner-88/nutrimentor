@@ -13,6 +13,9 @@ class Repository(
 ) {
     fun isLoggedIn(): Boolean = !tokenStore.token().isNullOrEmpty()
 
+    /** Emits when the server rejects the session (401); the token is already cleared. */
+    val sessionExpired get() = tokenStore.sessionExpired
+
     suspend fun login(username: String, password: String): Result<User> = call {
         val res = api.login(LoginRequest(username, password))
         val data = res.data ?: error(res.error ?: "Login gagal.")
